@@ -1,0 +1,28 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <l:layout title="UI Samples">
+    <l:main-panel>
+        <link rel="stylesheet" type="text/css" href="${rootURL}/plugin/clic/css/jquery.terminal.css"/>
+        <l:main-panel>
+            <h1>CLiC Terminal</h1>
+
+            <div id="terminal" class="terminal"  style="height:200px;"></div>
+
+
+
+
+        </l:main-panel>
+
+
+        <script src="${rootURL}/plugin/clic/js/jquery.js"></script>
+        <script src="${rootURL}/plugin/clic/js/underscore.js"></script>
+        <script>var Q=jQuery.noConflict()</script>
+        <script src="${rootURL}/plugin/clic/js/jquery.mousewheel.js"></script>
+        <script src="${rootURL}/plugin/clic/js/jquery.terminal-0.7.7.js"></script>
+        <script src="${rootURL}/plugin/clic/js/commandHandler.js"></script>
+        <script src="${rootURL}/plugin/clic/js/main.js"></script>
+    </l:main-panel>
+  </l:layout>
+</j:jelly>
+
+

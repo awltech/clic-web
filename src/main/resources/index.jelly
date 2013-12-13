@@ -1,0 +1,6 @@
+<!--
+  This view is used to render the installed plugins page.
+-->
+<div>
+  This plugin is an implementation of the project Clic. See : http://awltech.github.io/clic/index.html
+</div>
