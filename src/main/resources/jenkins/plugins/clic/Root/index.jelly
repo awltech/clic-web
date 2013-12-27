@@ -12,7 +12,11 @@
 
 
         </l:main-panel>
+        <script>
+            var cmdController = <st:bind value="${it.commandHandler}"/>
 
+
+        </script>
 
         <script src="${rootURL}/plugin/clic/js/jquery.js"></script>
         <script src="${rootURL}/plugin/clic/js/underscore.js"></script>
