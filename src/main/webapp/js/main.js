@@ -8,19 +8,16 @@
     var CommandHandler = {
         call: function (name, params) {
             var ret;
-            ret = Commands[name].execute(params);
-            out.echo("---");
-            if (ret === 0) {
-                out.echo("Execution: OK");
-            }
-            else {
-                out.error("Execution: KO");
-            }
+            Commands[name].execute(params);
+
         },
         validateCommand: function (input) {
             input = $.trim(input);
             //begin with a command like format
             var m = input.match(/[a-zA-Z0-9]+(:[a-zA-Z0-9]+)?/);
+            if (m == null) {
+                return false;
+            }
             if (m[0] != null) {
 
                 var cmdInput = m[0];
@@ -28,24 +25,15 @@
 
                 if (cmd) {
                     cmd.name = cmdInput;
-                    //Command known
-                    /*if (cmdInput != input) {
-                     //full regex
-                     var n = input.match(/([a-zA-Z0-9]+(:[a-zA-Z0-9]+)?)(\s+\-{1,2}[a-zA-Z0-9][a-zA-Z0-9-]*(=?\s?['|"]?[\w|.|?|=|&|+| |:|\/|\-|\\]*['|"]?)?)*$/g);
-                     if (n[0] != input) {
-
-                     out.error("Bad usage !");
-                     CommandHandler.call("help", {"-command": cmd.name})
-                     return false;
-                     }
-                     }*/
                     return cmd;
                 }
                 else {
                     out.error("Error. This command does not exist.");
-                    return false;
                 }
+            } else {
+                out.error("Error. Please enter a command.");
             }
+            return false;
         },
         parseParams: function (cmd, input) {
             var indexFirstSpace = input.indexOf(" ");
@@ -61,9 +49,9 @@
                 var paramOptional = _.filter(cmd.params, function (param) {
                     return param.mandatory == false;
                 });
-                inputParamsString = validateParams(paramMandatory, inputParamsString, true);
+                inputParamsString = this.validateParams(paramMandatory, inputParamsString, true);
                 if (inputParamsString) {
-                    var inputParamsString = validateParams(paramOptional, inputParamsString, false);
+                    inputParamsString = this.validateParams(paramOptional, inputParamsString, false);
                 }
                 if (inputParamsString || inputParamsString === "") {
                     return true;
@@ -75,20 +63,106 @@
                     return false;
                 }
             }
-            return false;
+        },
+
+        validateParams: function (params, input, mandatory) {
+            var inputParamsString = input;
+            //keep number of param in a var because params is not immutable
+            var nbParam = params.length;
+            for (var i = 0; i < nbParam; i++) {
+
+                inputParamsString = $.trim(inputParamsString);
+
+                if (inputParamsString.indexOf("-") == 0) {
+                    var r = inputParamsString.match(/^\-{1,2}[a-zA-Z0-9][a-zA-Z0-9-]*/);
+                    if (r == null) {
+                        return false;
+                    }
+                    var param = r[0];
+
+                    var t = inputParamsString.split(param);
+                    if (t.length == 2) {
+                        //found
+                        inputParamsString = $.trim(t[1]);
+                        _.each(params, function (p, i) {
+                            if (p.name == param || (p.miniName && p.miniName == param)) {
+                                //replace param mini name by param name
+                                param = p.name;
+                                //known param
+                                //now check for value
+                                if (p.value) {
+                                    var value;
+                                    var v = inputParamsString.match(/([\w|.|:|/|\-|\\]*)/);
+
+
+                                    if (v == null || v[0].length <= 0) {
+
+                                        var v = inputParamsString.match(/=['|"][\w|.|?|=|&|+| |:|/|\-|\\]*['|"]/);
+                                        if (v == null) {
+                                            return false;
+                                        }
+                                        value = v[0];
+                                        if (v && value.length != 0) {
+                                            var comaOpen = value.charAt(1);
+                                            var comaClose = value.charAt(value.length - 1);
+                                            if (comaClose != comaOpen) {
+                                                return false;
+                                            }
+                                        }
+                                        else {
+                                            return false;
+                                        }
+                                    }
+                                    value = v[0];
+                                    currentCmdParams[param] = value;
+                                    var u = inputParamsString.split(value);
+                                    if (u.length == 2) {
+                                        inputParamsString = u[1];
+
+                                        params.splice(i, 1);
+                                    }
+                                } else {
+                                    currentCmdParams[param] = "";
+                                    params.splice(i, 1);
+                                }
+                            }
+                        })
+                    } else {
+                        return false;
+                    }
+                } else {
+                    if (inputParamsString.length != 0) {
+                        return false;
+                    }
+                }
+            }
+
+            inputParamsString = $.trim(inputParamsString);
+            if ((mandatory && params.length != 0) || (!mandatory && inputParamsString != "")) {
+                return false
+            }
+            if (mandatory) {
+                return inputParamsString;
+            } else {
+                return true;
+            }
         }
     };
+
+    /*Command specific*/
 
     var listExecute = function () {
         var ret = 0;
         var output = '';
-        for (object in Commands) {
+        for (var object in Commands) {
             output += object + Commands[object].doc + "\n";
         }
 
         out.echo(output);
+        $(document).trigger("clicFinished",ret);
         return ret;
-    }
+    };
+
     var helpExecute = function (params) {
         var ret = 0;
         var output = '';
@@ -108,19 +182,58 @@
                     output += param.name + ' ' + (param.docValue ? param.docValue : '') + '\t' + param.doc;
                     output += '\n';
                 });
-
             }
-
         } else {
             output += commandName + " is not a known command";
         }
         out.echo(output);
+        $(document).trigger("clicFinished",ret);
         return ret;
 
-    }
+    };
     var mvnExecute = function (params) {
-        cmdController.call(params);
-    }
+        var timeout;
+
+        var managePulling = function(timestamp,callback){
+            timeout = setInterval(function(){
+                callback(timestamp);
+            },1000)
+        }
+
+        var getLogs = function (timestamp) {
+            cmdController.getLogs(timestamp, function (r) {
+                var result = r.responseObject();
+                if (result.startsWith("FUCK")) {
+                    clearInterval(timeout);
+                    $(document).trigger("clicFinished",0);
+                    return;
+                }
+                out.echo(result);
+            })
+        }
+
+        var timestamp;
+        var command = "";
+        //command += "clic:mvn"; // don't need as we only support this command for now
+        var ret = 0;
+
+        _.each(params, function (v, k) {
+            command += " " + k;
+            if (v.charAt(0) != '=') {
+                command += " ";
+            }
+            command += v;
+        })
+        cmdController.call(command, function (r) {
+            var result = r.responseObject();
+            if (!result.startsWith("ERROR")) {
+                managePulling(result,getLogs);
+            } else {
+                out.error(result);
+            }
+        });
+        return ret;
+    };
 
     var Commands = {
         list: {
@@ -158,8 +271,7 @@
                     name: "--generate-pom",
                     doc: "Should be specified if the Maven executable refers to a configured pom.xml file",
                     mandatory: false,
-                    value:false,
-
+                    value: false
                 },
                 {
                     name: "--maven-command",
@@ -180,7 +292,6 @@
         }
     };
 
-
     $('#terminal').terminal(function (c, term) {
         out = term;
         var cmd = CommandHandler.validateCommand(c);
@@ -189,7 +300,7 @@
             currentCmdParams = {};
             var paramsOk = CommandHandler.parseParams(cmd, c);
             if (paramsOk) {
-                var result = CommandHandler.call(cmd.name, currentCmdParams);
+                CommandHandler.call(cmd.name, currentCmdParams);
             }
             else {
                 term.error('Bad Usage ! ');
@@ -206,109 +317,15 @@
         prompt: '>'
     });
 
-    var isParamPresent = function (param, cmdParams) {
-        if (cmdParams.indexOf(param.name) == -1) {
-            if (param.miniName) {
-                if (cmdParams.indexOf(param.miniName) == -1) {
-                    return false;
-                }
-            }
-            else {
-                return false;
-            }
+    $(document).on("clicFinished",function(e,ret){
+        out.echo("---");
+        if (ret === 0) {
+            out.echo("Execution: OK");
         }
-        return true;
-    }
-    var validateParams = function (params, input, mandatory) {
-        var inputParamsString = input;
-        //keep number of param in a var because params is not immutable
-        var nbParam = params.length;
-        for (var i = 0; i < nbParam; i++) {
-
-            inputParamsString = $.trim(inputParamsString);
-
-            if (inputParamsString.indexOf("-") == 0) {
-                var ret = false;
-                var r = inputParamsString.match(/^\-{1,2}[a-zA-Z0-9][a-zA-Z0-9-]*/);
-                var param = r[0];
-
-                var t = inputParamsString.split(param);
-                if (t.length == 2) {
-                    //found
-                    inputParamsString = $.trim(t[1]);
-                    _.each(params, function (p, i) {
-                        if (p.name == param || (p.miniName && p.miniName == param)) {
-                            //replace param mini name by param name
-                            param = p.name;
-                            //known param
-                            //now check for value
-                            if (p.value) {
-                                var value;
-                                var v = inputParamsString.match(/([\w|.|:|/|\-|\\]*)/);
-                                value = v[0];
-                                if (!v || value.length <= 0) {
-
-                                    var v = inputParamsString.match(/=['|"][\w|.|?|=|&|+| |:|/|\-|\\]*['|"]/);
-                                    value = v[0];
-                                    if (v && value.length != 0) {
-                                        var comaOpen = value.charAt(1);
-                                        var comaClose = value.charAt(value.length - 1);
-                                        if (comaClose != comaOpen) {
-                                            return false;
-                                        }
-                                    }
-                                    else {
-                                        return false;
-                                    }
-                                }
-                                currentCmdParams[param] = value;
-                                var u = inputParamsString.split(value);
-                                if (u.length == 2) {
-                                    inputParamsString = u[1];
-
-                                    params.splice(i, 1);
-                                }
-                            } else {
-                                currentCmdParams[param] = "";
-                                params.splice(i, 1);
-                            }
-                        }
-                    })
-                } else {
-                    return false;
-                }
-            } else {
-                if (inputParamsString.length != 0) {
-                    return false;
-                }
-
-            }
-            console.log("hello");
+        else {
+            out.error("Execution: KO");
         }
-
-        inputParamsString = $.trim(inputParamsString);
-        if ((mandatory && params.length != 0) || (!mandatory && inputParamsString != "")) {
-            return false
-        }
-        if (mandatory) {
-            return inputParamsString;
-        } else {
-            return true;
-        }
-    }
-
-
-    var merge_options = function (obj1, obj2) {
-        var obj3 = {};
-        for (var attrname in obj1) {
-            obj3[attrname] = obj1[attrname];
-        }
-        for (var attrname in obj2) {
-            obj3[attrname] = obj2[attrname];
-        }
-        return obj3;
-    }
-
+    });
 
 })
     (jQuery);

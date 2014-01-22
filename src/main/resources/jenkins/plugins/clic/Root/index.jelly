@@ -1,6 +1,6 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-  <l:layout title="UI Samples">
+  <l:layout title="CliC">
     <l:main-panel>
         <link rel="stylesheet" type="text/css" href="${rootURL}/plugin/clic/css/jquery.terminal.css"/>
         <l:main-panel>
@@ -23,7 +23,6 @@
         <script>var Q=jQuery.noConflict()</script>
         <script src="${rootURL}/plugin/clic/js/jquery.mousewheel.js"></script>
         <script src="${rootURL}/plugin/clic/js/jquery.terminal-0.7.7.js"></script>
-        <script src="${rootURL}/plugin/clic/js/commandHandler.js"></script>
         <script src="${rootURL}/plugin/clic/js/main.js"></script>
     </l:main-panel>
   </l:layout>

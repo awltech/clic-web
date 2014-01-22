@@ -2,13 +2,9 @@ package jenkins.plugins.clic;
 
 import hudson.Extension;
 import hudson.model.RootAction;
-import jenkins.plugins.clic.commands.CommandHandler;
+import jenkins.plugins.clic.controller.CommandHandler;
 
-/**
- * Entry point to all the UI samples.
- * 
- * @author Kohsuke Kawaguchi
- */
+
 @Extension
 public class Root implements RootAction{
 
