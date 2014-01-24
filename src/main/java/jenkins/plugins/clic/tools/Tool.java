@@ -16,17 +16,17 @@ import java.util.List;
 import java.util.logging.Logger;
 
 @Extension
-public class Tool{
+public class Tool {
 
-    private static final String ROOT_DIRECTORY = "/tmp/clic";
     private static final String BASE_DIRECTORY = "users";
+    private static final String CLIC_DIRECTORY = "CliC";
     private static final Logger LOGGER = Logger.getLogger(Tool.class.getName());
 
-    public static String getUserName(){
-       return getMe().toString();
+    public static String getUserName() {
+        return getMe().toString();
     }
 
-    public static User getMe(){
+    public static User getMe() {
         try {
             return Jenkins.getInstance().getMe();
         } catch (Exception e) {
@@ -38,25 +38,62 @@ public class Tool{
         }
     }
 
-    public static Path getNextPath(){
+    private static String getRootDirectory(){
+        return Jenkins.getInstance().getRootDir().getAbsolutePath();
+    }
+
+    public static Path getNextPath() {
         //change this with the home jenkins directory
 
         long now = new Date().getTime();
-        Path path = Paths.get(ROOT_DIRECTORY,BASE_DIRECTORY,getUserName(),now + ".log");
+        return getLogPath(now + "");
+    }
 
+
+    public static Path gethPath(String timestamp) {
+        //change this with the home jenkins directory
+
+        Path path = Paths.get(getRootDirectory(), BASE_DIRECTORY, getUserName(),CLIC_DIRECTORY, timestamp);
+        try {
+            Files.createDirectories(path);
+        } catch (IOException e) {
+            // directory already exists
+        }
+        return path;
+
+    }
+
+    public static Path getLogPath(String timestamp){
+        Path path = Paths.get(getRootDirectory(), BASE_DIRECTORY, getUserName(),CLIC_DIRECTORY, timestamp,"log.txt");
         try {
             Files.createDirectories(path.getParent());
         } catch (IOException e) {
             // directory already exists
         }
         return path;
+
     }
 
-    public static List<Path> getAllCommands(){
+    public static Path getResultPath(String timestamp){
+        Path path = Paths.get(getRootDirectory(), BASE_DIRECTORY, getUserName(), CLIC_DIRECTORY, timestamp,"result.xml");
+        try {
+            Files.createDirectories(path.getParent());
+        } catch (IOException e) {
+            // directory already exists
+        }
+        return path;
+
+    }
+
+    public static String getTimestamp(Path path){
+        return path.getParent().getFileName().toString();
+    }
+
+    public static List<Path> getAllCommands() {
         List<Path> paths = new ArrayList<Path>();
         try (DirectoryStream<Path> ds =
-                     Files.newDirectoryStream(Paths.get(ROOT_DIRECTORY, BASE_DIRECTORY, getUserName()))) {
-            for(Path path :ds){
+                     Files.newDirectoryStream(Paths.get(getRootDirectory(), BASE_DIRECTORY, getUserName()))) {
+            for (Path path : ds) {
                 paths.add(path);
             }
 
@@ -66,7 +103,7 @@ public class Tool{
         return paths;
     }
 
-    public static Writer getNewWriter(Path path){
+    public static Writer getNewWriter(Path path) {
         Writer writer = null;
         try {
             writer = Files.newBufferedWriter(path, Charset.defaultCharset(), StandardOpenOption.CREATE_NEW);
@@ -77,7 +114,7 @@ public class Tool{
         return writer;
     }
 
-    public static String withoutExtension(String fileName){
-       return fileName.substring(0, fileName.lastIndexOf('.'));
+    public static String withoutExtension(String fileName) {
+        return fileName.substring(0, fileName.lastIndexOf('.'));
     }
 }

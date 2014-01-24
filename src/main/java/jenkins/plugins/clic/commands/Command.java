@@ -18,34 +18,44 @@ import java.util.List;
 public class Command {
 
     private boolean isFinished;
-
-    private Path path;
+    private int exitCode;
+    private Path pathLog;
+    private Path pathResult;
     private BufferedReader buffer = null;
+    private String command;
 
-    public Command(Path path, boolean completed) {
-        this.path = path;
-        this.isFinished = completed;
+    public Command(Path pathLog,Path pathResult) {
+        this.pathLog = pathLog;
+        this.pathResult = pathResult;
+        this.isFinished = Files.exists(pathResult);
+
 
         if (!isFinished) {
+            this.exitCode = -1;
             try {
-                buffer = Files.newBufferedReader(path, Charset.defaultCharset());
+                buffer = Files.newBufferedReader(pathLog, Charset.defaultCharset());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else{
+            try {
+               List<String> result =  Files.readAllLines(pathResult, Charset.defaultCharset());
+               String line1 = result.get(0);
+               //todo : result files and so... init exit code
+                this.exitCode = 0;
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public Command(Path path) {
-        this(path, false);
-    }
 
 
-    public String getFileName() {
-        return path.getFileName().toString();
-    }
+
 
     public String getTimestamp() {
-        return Tool.withoutExtension(getFileName());
+        return pathLog.getParent().getFileName().toString();
     }
 
     public List<String> getLogs() {
@@ -53,7 +63,7 @@ public class Command {
         if (buffer == null) {
             try {
 
-                ret = Files.readAllLines(path, Charset.defaultCharset());
+                ret = Files.readAllLines(pathLog, Charset.defaultCharset());
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -85,4 +95,29 @@ public class Command {
         return isFinished;
     }
 
+    public void setExitCode(int exitCode){
+        this.exitCode = exitCode;
+    }
+
+    public int getExitCode(){
+        closeBuffer();
+        return exitCode;
+
+    }
+
+    public String getCommand() {
+        return command;
+    }
+
+    public void setCommand(String command) {
+        this.command = command;
+    }
+
+    private void closeBuffer(){
+        try {
+            buffer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

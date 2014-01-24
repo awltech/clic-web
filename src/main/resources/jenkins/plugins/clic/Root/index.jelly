@@ -5,17 +5,10 @@
         <link rel="stylesheet" type="text/css" href="${rootURL}/plugin/clic/css/jquery.terminal.css"/>
         <l:main-panel>
             <h1>CLiC Terminal</h1>
-
             <div id="terminal" class="terminal"  style="height:200px;"></div>
-
-
-
-
         </l:main-panel>
         <script>
             var cmdController = <st:bind value="${it.commandHandler}"/>
-
-
         </script>
 
         <script src="${rootURL}/plugin/clic/js/jquery.js"></script>
@@ -27,5 +20,3 @@
     </l:main-panel>
   </l:layout>
 </j:jelly>
-
-

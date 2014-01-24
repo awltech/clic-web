@@ -42,8 +42,8 @@ public class UserCommands {
     }
 
 
-    public void addCommand(Path path) {
-       commands.put(Tool.withoutExtension(path.getFileName().toString()),new Command(path,false));
+    public void addCommand(Path pathLog,Path pathResult) {
+       commands.put(Tool.getTimestamp(pathLog),new Command(pathLog,pathResult));
     }
 
     public void addCommand(Command command){

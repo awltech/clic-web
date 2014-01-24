@@ -29,11 +29,18 @@ public class FileOutputHandler implements InvocationOutputHandler {
 
     @Override
     public void consumeLine(String s) {
-        System.out.println(s);
         try {
             bw.write(s + '\n');
             bw.flush();
             //bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void closeBuffer(){
+        try {
+            bw.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

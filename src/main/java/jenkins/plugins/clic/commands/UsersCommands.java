@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * User: pierremarot
@@ -15,33 +16,36 @@ import java.util.Map;
  */
 public class UsersCommands {
 
-    private static Map<String,UserCommands> usersCommands = new HashMap<String,UserCommands>();
+    private static Map<String, UserCommands> usersCommands = new HashMap<String, UserCommands>();
 
-
-
-
-    public static List<String> getCommandLog(String user,String timestamp){
+    public static List<String> getCommandLog(String user, String timestamp) {
         return usersCommands.get(user).getCommandLog(timestamp);
     }
 
-    public static Command addCommand(String user,Path path){
-        Command newCommand = new Command(path);
+    public static Command addCommand(String user, Path pathLog, Path pathResult) {
+        Command newCommand = new Command(pathLog, pathResult);
         UserCommands uCS = usersCommands.get(user);
-        if(uCS == null){
+        if (uCS == null) {
             uCS = new UserCommands(user);
-            usersCommands.put(user,uCS);
+            usersCommands.put(user, uCS);
         }
         uCS.addCommand(newCommand);
         return newCommand;
     }
 
-    public static void finish(String timestamp){
-        usersCommands.get(Tool.getUserName()).getCommand(timestamp).finish();
+    public static Command getCommand(String user, String timestamp) throws NoSuchElementException {
+        UserCommands uCS = usersCommands.get(user);
+        Path pathLog = Tool.getLogPath(timestamp);
+        Path pathResult = Tool.getResultPath(timestamp);
+        Command command;
+        if (uCS == null) {
+            command = addCommand(user, pathLog, pathResult);
+        } else {
+            command = uCS.getCommand(timestamp);
+            if (command == null) {
+                command = addCommand(user, pathLog, pathResult);
+            }
+        }
+        return command;
     }
-
-    public static Command getCommand(String user,String timestamp){
-       return usersCommands.get(user).getCommand(timestamp);
-    }
-
-
 }

@@ -192,7 +192,8 @@
 
     };
     var mvnExecute = function (params) {
-        var timeout;
+        out.pause();
+        var timeout,stop = false;
 
         var managePulling = function(timestamp,callback){
             timeout = setInterval(function(){
@@ -203,18 +204,20 @@
         var getLogs = function (timestamp) {
             cmdController.getLogs(timestamp, function (r) {
                 var result = r.responseObject();
-                if (result.startsWith("FUCK")) {
+                if(result.log !== ""){
+                    out.echo(result.log);
+                }
+                if (result.finished && !stop) {
+                    stop = true;
                     clearInterval(timeout);
                     $(document).trigger("clicFinished",0);
+                    out.resume();
                     return;
                 }
-                out.echo(result);
             })
         }
 
-        var timestamp;
-        var command = "";
-        //command += "clic:mvn"; // don't need as we only support this command for now
+       var command = "clic:mvn"; // don't need as we only support this command for now
         var ret = 0;
 
         _.each(params, function (v, k) {
@@ -230,6 +233,7 @@
                 managePulling(result,getLogs);
             } else {
                 out.error(result);
+                out.resume();
             }
         });
         return ret;
