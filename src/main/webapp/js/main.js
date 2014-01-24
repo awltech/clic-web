@@ -210,8 +210,11 @@
                 if (result.finished && !stop) {
                     stop = true;
                     clearInterval(timeout);
-                    $(document).trigger("clicFinished",0);
-                    out.resume();
+                    cmdController.getExitCode(timestamp,function(r){
+                        $(document).trigger("clicFinished", r.responseObject());
+                        out.resume();
+                    })
+
                     return;
                 }
             })

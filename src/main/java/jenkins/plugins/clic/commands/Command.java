@@ -1,8 +1,7 @@
 package jenkins.plugins.clic.commands;
 
-import jenkins.plugins.clic.tools.Tool;
-
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -40,10 +39,10 @@ public class Command {
         }
         else{
             try {
-               List<String> result =  Files.readAllLines(pathResult, Charset.defaultCharset());
-               String line1 = result.get(0);
+               BufferedReader bR = Files.newBufferedReader(pathResult,Charset.defaultCharset());
+               exitCode = bR.read();
+               bR.close();
                //todo : result files and so... init exit code
-                this.exitCode = 0;
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -101,6 +100,7 @@ public class Command {
 
     public int getExitCode(){
         closeBuffer();
+        saveResult();
         return exitCode;
 
     }
@@ -116,6 +116,18 @@ public class Command {
     private void closeBuffer(){
         try {
             buffer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveResult(){
+        try {
+            Path path = Files.createFile(pathResult);
+            BufferedWriter writer = Files.newBufferedWriter(path,Charset.defaultCharset());
+            writer.write(exitCode+"");
+            writer.flush();
+            writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

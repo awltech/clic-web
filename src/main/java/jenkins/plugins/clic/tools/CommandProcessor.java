@@ -1,17 +1,7 @@
 package jenkins.plugins.clic.tools;
 
-import com.worldline.clic.utils.mvn.MavenClicCommandLine;
-import com.worldline.clic.utils.mvn.MavenCommand;
-import com.worldline.clic.utils.mvn.MavenPom;
-import com.worldline.clic.utils.mvn.MavenReference;
 import jenkins.plugins.clic.exception.CommandParsingException;
-import joptsimple.OptionSet;
-import joptsimple.OptionSpec;
-import joptsimple.util.KeyValuePair;
-import org.apache.maven.shared.invoker.InvocationRequest;
-import org.apache.maven.shared.invoker.MavenInvocationException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;

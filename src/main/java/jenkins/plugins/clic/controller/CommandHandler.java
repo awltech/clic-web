@@ -3,17 +3,12 @@ package jenkins.plugins.clic.controller;
 import com.worldline.clic.utils.mvn.MavenClicCommandLine;
 import jenkins.plugins.clic.commands.Command;
 import jenkins.plugins.clic.commands.UsersCommands;
-import jenkins.plugins.clic.exception.CommandParsingException;
 import jenkins.plugins.clic.tools.CommandProcessor;
 import jenkins.plugins.clic.tools.Tool;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.kohsuke.stapler.HttpResponse;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
 
-import javax.servlet.ServletException;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;

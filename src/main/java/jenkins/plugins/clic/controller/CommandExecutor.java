@@ -41,7 +41,6 @@ public class CommandExecutor extends Thread {
         try {
             int exitCode = Maven.executeCommandLine(options, mavenParameters, mavenReference, mavenCommand, iOH);
 
-            iOH.consumeLine("Exit Code : " + exitCode);
             command.setExitCode(exitCode);
 
         } catch (IOException e) {
@@ -49,6 +48,7 @@ public class CommandExecutor extends Thread {
             command.setExitCode(1);
             e.printStackTrace();
         } catch (MavenInvocationException e) {
+            command.setExitCode(1);
             iOH.consumeLine("ERROR Maven CliC: While running maven command.");
             e.printStackTrace();
         } catch (Exception e) {
