@@ -6,16 +6,28 @@
      }
      }*/
 
-    var out, currentCmdParams;
+    var out, currentCmdParams, Commands;
+
+    $.getJSON("/jenkins/plugin/clic/js/commands.json",function(data){
+        Commands = data;
+
+    });
+
+
+
     /**
      * Created by pierremarot on 12/12/2013.
      */
 
     var CommandHandler = {
         call: function (name, params) {
-            var ret;
-            Commands[name].execute(params);
-
+            if(name == "help"){
+                helpExecute(params);
+            }else if(name == "list"){
+                listExecute();
+            }else{
+                backExecute(params)
+            }
         },
         validateCommand: function (input) {
             input = $.trim(input);
@@ -213,7 +225,7 @@
     var helpExecute = function (params) {
         helpLogic(params, true);
     };
-    var mvnExecute = function (params) {
+    var backExecute = function (params) {
         out.pause();
         var timeout, stop = false;
 
@@ -258,73 +270,16 @@
                 managePulling(result, getLogs);
             } else {
                 out.error(result);
-                out.resume();
+                cmdController.getExitCode(timestamp, function (r) {
+                    $(document).trigger("clicFinished", r.responseObject());
+                    out.resume();
+                })
             }
         });
         return ret;
     };
 
-    var Commands = {
-        list: {
-            doc: " - Displays the list of the available commands",
-            template: "list",
-            execute: listExecute
-        },
-        help: {
-            doc: " - Gives parameters information for given command",
-            template: "help -command $command$",
-            params: [
-                {
-                    name: "-command",
-                    miniName: "-co",
-                    doc: "command name",
-                    mandatory: true,
-                    value: true,
-                    docValue: "<CommandName: -co commandName>",
-                    multiple: false
-                }
-            ],
-            execute: helpExecute
-        },
-        "clic:mvn": {
-            doc: " - Executes a task embedded in Maven",
-            template: "",
-            params: [
-                {
-                    name: "-D",
-                    doc: "Allows to specify JVM-Parameters, like -Dparam=value",
-                    mandatory: false,
-                    value: true,
-                    docValue: "<KeyValuePair: -Dparam=value>",
-                    multiple: true
-                },
-                {
-                    name: "--generate-pom",
-                    doc: "Should be specified if the Maven executable refers to a configured pom.xml file",
-                    mandatory: false,
-                    value: false,
-                    multiple: false
-                },
-                {
-                    name: "--maven-command",
-                    doc: "Reference to the Maven command that should be executed",
-                    mandatory: true,
-                    value: true,
-                    docValue: "<goal[:executable]>",
-                    multiple: false
-                },
-                {
-                    name: "--maven-reference",
-                    doc: "Reference to a Maven executable using the groupId:artifactId:version format",
-                    mandatory: true,
-                    value: true,
-                    docValue: "<])+:groupId:artifactId:version>",
-                    multiple: false
-                }
-            ],
-            execute: mvnExecute
-        }
-    };
+
 
     $('#terminal').terminal(function (c, term) {
         out = term;

@@ -2,7 +2,6 @@ package jenkins.plugins.clic.commands;
 
 import jenkins.plugins.clic.tools.Tool;
 
-import java.io.BufferedReader;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +15,7 @@ import java.util.NoSuchElementException;
  */
 public class UsersCommands {
 
-    private static Map<String, UserCommands> usersCommands = new HashMap<String, UserCommands>();
+    private static Map<String, UserCommands> usersCommands = new HashMap<>();
 
     public static List<String> getCommandLog(String user, String timestamp) {
         return usersCommands.get(user).getCommandLog(timestamp);

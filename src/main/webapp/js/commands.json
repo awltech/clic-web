@@ -1,0 +1,58 @@
+{
+    "list": {
+        "doc": " - Displays the list of the available commands",
+        "template": "list"
+    },
+    "help": {
+        "doc": " - Gives parameters information for given command",
+        "template": "help -command $command$",
+        "params": [
+            {
+                "name": "-command",
+                "miniName": "-co",
+                "doc": "command name",
+                "mandatory": true,
+                "value": true,
+                "docValue": "<CommandName: -co commandName>",
+                "multiple": false
+            }
+        ]
+    },
+    "clic:mvn": {
+        "doc": " - Executes a task embedded in Maven",
+        "template": "",
+        "params": [
+            {
+                "name": "-D",
+                "doc": "Allows to specify JVM-Parameters, like -Dparam=value",
+                "mandatory": false,
+                "value": true,
+                "docValue": "<KeyValuePair: -Dparam=value>",
+                "multiple": true
+            },
+            {
+                "name": "--generate-pom",
+                "doc": "Should be specified if the Maven executable refers to a configured pom.xml file",
+                "mandatory": false,
+                "value": false,
+                "multiple": false
+            },
+            {
+                "name": "--maven-command",
+                "doc": "Reference to the Maven command that should be executed",
+                "mandatory": true,
+                "value": true,
+                "docValue": "<goal[:executable]>",
+                "multiple": false
+            },
+            {
+                "name": "--maven-reference",
+                "doc": "Reference to a Maven executable using the groupId:artifactId:version format",
+                "mandatory": true,
+                "value": true,
+                "docValue": "<])+:groupId:artifactId:version>",
+                "multiple": false
+            }
+        ]
+    }
+}

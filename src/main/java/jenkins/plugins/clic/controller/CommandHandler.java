@@ -16,7 +16,6 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.logging.Logger;
 
 
 /**
@@ -25,7 +24,6 @@ import java.util.logging.Logger;
  * Time: 15:35
  */
 public class CommandHandler {
-    private static final Logger LOGGER = Logger.getLogger(CommandHandler.class.getName());
 
     private MavenClicCommandLine mCCL;
     private OptionParser parser;
@@ -34,7 +32,7 @@ public class CommandHandler {
     private String splitCommand(String command) {
         String paramsString;
         int indexOfSpace = command.indexOf(" ");
-        if (command.indexOf(" ") != -1) {
+        if (command.contains(" ")) {
             paramsString = command.substring(indexOfSpace + 1);
         } else {
             paramsString = command;
@@ -43,6 +41,7 @@ public class CommandHandler {
     }
 
     @JavaScriptMethod
+    @SuppressWarnings("unused")
     public String call(String commandStr) {
         boolean statusOk = true;
         String ret = "";
@@ -96,14 +95,12 @@ public class CommandHandler {
     }
 
         @JavaScriptMethod
+        @SuppressWarnings("unused")
         public CommandLog getLogs(String timestamp) {
-    /*public void doGetLogs(StaplerRequest req, StaplerResponse resp) throws ServletException, IOException {
-        String timestamp = req.getParameter("0"); */
         String ret = "";
         Command command = UsersCommands.getCommand(Tool.getUserName(), timestamp);
 
         List<String> list = UsersCommands.getCommandLog(Tool.getUserName(), timestamp);
-
 
         Iterator it = list.iterator();
         while (it.hasNext()) {
@@ -111,18 +108,12 @@ public class CommandHandler {
             if (it.hasNext()) {
                 ret += '\n';
             }
-
-
         }
-
         return new CommandLog(ret,command.isFinished());
-        //return ret;
-        /*resp.setHeader("X-More-Data", !command.isFinished() + "");
-        resp.setHeader("Data", ret);
-        resp.forwardToPreviousPage(req);*/
     }
 
     @JavaScriptMethod
+    @SuppressWarnings("unused")
     public int getExitCode(String timestamp) {
         Command command;
         try {

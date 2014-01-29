@@ -58,7 +58,7 @@ public class Command {
     }
 
     public List<String> getLogs() {
-        List<String> ret = new ArrayList<String>();
+        List<String> ret = new ArrayList<>();
         if (buffer == null) {
             try {
 

@@ -16,10 +16,12 @@ public class CommandLog {
         this.finished = finished;
     }
 
+    @SuppressWarnings("unused")
     public String getLog() {
         return log;
     }
 
+    @SuppressWarnings("unused")
     public void setLog(String log) {
         this.log = log;
     }

@@ -15,11 +15,9 @@ import java.nio.file.Path;
  */
 public class FileOutputHandler implements InvocationOutputHandler {
 
-    private Path path;
     private BufferedWriter bw;
 
     public FileOutputHandler(Path path){
-        this.path = path;
         try {
             bw = Files.newBufferedWriter(path, Charset.defaultCharset());
         } catch (IOException e) {

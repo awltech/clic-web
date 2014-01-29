@@ -1,11 +1,7 @@
 package jenkins.plugins.clic.controller;
 
 import com.worldline.clic.utils.mvn.Maven;
-import hudson.slaves.CommandConnector;
 import jenkins.plugins.clic.commands.Command;
-import jenkins.plugins.clic.commands.UserCommands;
-import jenkins.plugins.clic.commands.UsersCommands;
-import jenkins.plugins.clic.tools.Tool;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import joptsimple.util.KeyValuePair;

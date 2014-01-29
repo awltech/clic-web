@@ -22,13 +22,13 @@ public class UserCommands {
 
     public UserCommands(String user){
         this.user = user;
-        commands = new HashMap<String,Command>();
+        commands = new HashMap<>();
 
     }
 
     public List<String> getCommandLog(String timestamp){
         List<String> ret = null;
-        Command c = (Command) commands.get(timestamp);
+        Command c = commands.get(timestamp);
 
         if(c != null){
            ret = c.getLogs();
@@ -38,15 +38,19 @@ public class UserCommands {
     }
 
     public Command getCommand(String timestamp){
-        return (Command) commands.get(timestamp);
+        return commands.get(timestamp);
     }
 
-
+    @SuppressWarnings("unused")
     public void addCommand(Path pathLog,Path pathResult) {
        commands.put(Tool.getTimestamp(pathLog),new Command(pathLog,pathResult));
     }
 
     public void addCommand(Command command){
         commands.put(command.getTimestamp(),command);
+    }
+
+    public String getUser(){
+        return user;
     }
 }
