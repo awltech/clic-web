@@ -1,4 +1,10 @@
 (function ($, undefined) {
+    //Remove history for security reason
+    /*for(var key in localStorage){
+     if(key.startsWith("clic-task_")){
+     localStorage.removeItem(key);
+     }
+     }*/
 
     var out, currentCmdParams;
     /**
@@ -37,22 +43,16 @@
         },
         parseParams: function (cmd, input) {
             var indexFirstSpace = input.indexOf(" ");
-            var paramMandatory = _.filter(cmd.params, function (param) {
-                return param.mandatory == true;
-            });
+            var paramMandatory = this.getMandatoryParams(cmd.params)
             if (indexFirstSpace == -1) {
                 return(paramMandatory.length == 0);
             }
             else {
                 var inputParamsString = input.substr(indexFirstSpace);
 
-                var paramOptional = _.filter(cmd.params, function (param) {
-                    return param.mandatory == false;
-                });
-                inputParamsString = this.validateParams(paramMandatory, inputParamsString, true);
-                if (inputParamsString) {
-                    inputParamsString = this.validateParams(paramOptional, inputParamsString, false);
-                }
+
+                inputParamsString = this.validateParams(cmd.params, inputParamsString);
+
                 if (inputParamsString || inputParamsString === "") {
                     return true;
                 }
@@ -64,8 +64,13 @@
                 }
             }
         },
-
-        validateParams: function (params, input, mandatory) {
+        getMandatoryParams: function (params) {
+            return _.filter(params, function (param) {
+                return param.mandatory == true;
+            });
+        },
+        validateParams: function (cmdParams, input) {
+            var params = cmdParams.slice();
             var inputParamsString = input;
             //keep number of param in a var because params is not immutable
             var nbParam = params.length;
@@ -84,15 +89,25 @@
                     if (t.length == 2) {
                         //found
                         inputParamsString = $.trim(t[1]);
-                        _.each(params, function (p, i) {
-                            if (p.name == param || (p.miniName && p.miniName == param)) {
+                        _.each(params, function (p) {
+                            var multiple = false;
+                            //multiple is parameters that kind be repeated in command like -D
+                            if (p.multiple && param.startsWith(p.name)) {
+                                multiple = true;
+                            }
+                            if (p.name == param || (p.miniName && p.miniName == param) || multiple) {
                                 //replace param mini name by param name
-                                param = p.name;
+                                if (!multiple) {
+                                    param = p.name;
+
+                                }else{
+                                    i--;
+                                }
                                 //known param
                                 //now check for value
                                 if (p.value) {
                                     var value;
-                                    var v = inputParamsString.match(/([\w|.|:|/|\-|\\]*)/);
+                                    var v = inputParamsString.match(/^ ?=?([\w||.|:|/|\-|\\]+)/);
 
 
                                     if (v == null || v[0].length <= 0) {
@@ -116,14 +131,18 @@
                                     value = v[0];
                                     currentCmdParams[param] = value;
                                     var u = inputParamsString.split(value);
-                                    if (u.length == 2) {
-                                        inputParamsString = u[1];
-
-                                        params.splice(i, 1);
+                                    if (u.length >= 2) {
+                                        inputParamsString = inputParamsString.replace(value,"");
+                                        if (!multiple) {
+                                            params.splice(params.indexOf(p), 1);
+                                        }
                                     }
                                 } else {
                                     currentCmdParams[param] = "";
-                                    params.splice(i, 1);
+                                    if (!multiple) {
+                                        params.splice(params.indexOf(p), 1);
+                                    }
+
                                 }
                             }
                         })
@@ -132,20 +151,17 @@
                     }
                 } else {
                     if (inputParamsString.length != 0) {
+                        out.error("Syntax error near : " + inputParamsString);
                         return false;
                     }
                 }
             }
 
             inputParamsString = $.trim(inputParamsString);
-            if ((mandatory && params.length != 0) || (!mandatory && inputParamsString != "")) {
+            if ((params.length != 0 && !CommandHandler.getMandatoryParams(params)) && (inputParamsString != "")) {
                 return false
             }
-            if (mandatory) {
-                return inputParamsString;
-            } else {
-                return true;
-            }
+            return true;
         }
     };
 
@@ -159,14 +175,14 @@
         }
 
         out.echo(output);
-        $(document).trigger("clicFinished",ret);
+        $(document).trigger("clicFinished", ret);
         return ret;
     };
 
-    var helpExecute = function (params) {
+    var helpLogic = function (params, displayResult) {
         var ret = 0;
         var output = '';
-        var commandName = params[this.params[0].name];
+        var commandName = params[Commands.help.params[0].name];
         var command = Commands[commandName];
         if (command) {
             output += commandName + ': ' + command.doc;
@@ -185,32 +201,38 @@
             }
         } else {
             output += commandName + " is not a known command";
+            ret = 1
         }
         out.echo(output);
-        $(document).trigger("clicFinished",ret);
+        if (displayResult) {
+            $(document).trigger("clicFinished", ret);
+        }
         return ret;
+    }
 
+    var helpExecute = function (params) {
+        helpLogic(params, true);
     };
     var mvnExecute = function (params) {
         out.pause();
-        var timeout,stop = false;
+        var timeout, stop = false;
 
-        var managePulling = function(timestamp,callback){
-            timeout = setInterval(function(){
+        var managePulling = function (timestamp, callback) {
+            timeout = setInterval(function () {
                 callback(timestamp);
-            },1000)
+            }, 1000)
         }
 
         var getLogs = function (timestamp) {
             cmdController.getLogs(timestamp, function (r) {
                 var result = r.responseObject();
-                if(result.log !== ""){
+                if (result.log !== "") {
                     out.echo(result.log);
                 }
                 if (result.finished && !stop) {
                     stop = true;
                     clearInterval(timeout);
-                    cmdController.getExitCode(timestamp,function(r){
+                    cmdController.getExitCode(timestamp, function (r) {
                         $(document).trigger("clicFinished", r.responseObject());
                         out.resume();
                     })
@@ -220,7 +242,7 @@
             })
         }
 
-       var command = "clic:mvn"; // don't need as we only support this command for now
+        var command = "clic:mvn"; // don't need as we only support this command for now
         var ret = 0;
 
         _.each(params, function (v, k) {
@@ -233,7 +255,7 @@
         cmdController.call(command, function (r) {
             var result = r.responseObject();
             if (!result.startsWith("ERROR")) {
-                managePulling(result,getLogs);
+                managePulling(result, getLogs);
             } else {
                 out.error(result);
                 out.resume();
@@ -258,7 +280,8 @@
                     doc: "command name",
                     mandatory: true,
                     value: true,
-                    docValue: "<CommandName: -co commandName>"
+                    docValue: "<CommandName: -co commandName>",
+                    multiple: false
                 }
             ],
             execute: helpExecute
@@ -272,27 +295,31 @@
                     doc: "Allows to specify JVM-Parameters, like -Dparam=value",
                     mandatory: false,
                     value: true,
-                    docValue: "<KeyValuePair: -Dparam=value>"
+                    docValue: "<KeyValuePair: -Dparam=value>",
+                    multiple: true
                 },
                 {
                     name: "--generate-pom",
                     doc: "Should be specified if the Maven executable refers to a configured pom.xml file",
                     mandatory: false,
-                    value: false
+                    value: false,
+                    multiple: false
                 },
                 {
                     name: "--maven-command",
                     doc: "Reference to the Maven command that should be executed",
                     mandatory: true,
                     value: true,
-                    docValue: "<goal[:executable]>"
+                    docValue: "<goal[:executable]>",
+                    multiple: false
                 },
                 {
-                    name: "-maven-reference",
+                    name: "--maven-reference",
                     doc: "Reference to a Maven executable using the groupId:artifactId:version format",
                     mandatory: true,
                     value: true,
-                    docValue: "<])+:groupId:artifactId:version>"
+                    docValue: "<])+:groupId:artifactId:version>",
+                    multiple: false
                 }
             ],
             execute: mvnExecute
@@ -311,7 +338,7 @@
             }
             else {
                 term.error('Bad Usage ! ');
-                CommandHandler.call("help", {"-command": cmd.name})
+                helpLogic({"-command": cmd.name}, false)
             }
         }
         else {
@@ -324,7 +351,7 @@
         prompt: '>'
     });
 
-    $(document).on("clicFinished",function(e,ret){
+    $(document).on("clicFinished", function (e, ret) {
         out.echo("---");
         if (ret === 0) {
             out.echo("Execution: OK");
