@@ -7,15 +7,34 @@
         <version>1.547</version>
     </parent>
 
-  <groupId>org.jenkins-ci.main</groupId> <!-- historical -->
-  <artifactId>clic</artifactId> <!-- historical -->
+  <groupId>org.jenkins-ci.main</groupId>
+  <artifactId>clic</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
+    <name>CLiC Web Jenkins Plugin</name>
+    <url>http://awltech.github.io/clic/</url>
+    <description>CLiC Web is a Jenkins Plugin that allow to remotely invoke Maven executable from CliC</description>
+    <inceptionYear>2014</inceptionYear>
 
+    <organization>
+        <name>Worldline</name>
+        <url>http://www.worldline.com/</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <name>Pierre Marot</name>
+            <email>pierre.marot@worldline.com</email>
+            <id>aneveux</id>
+            <url>https://github.com/krazar</url>
+        </developer>
+    </developers>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <dependencies>
-
-
         <dependency>
             <groupId>com.worldline.clic</groupId>
             <artifactId>utils</artifactId>
@@ -34,15 +53,15 @@
         </dependency>
     </dependencies>
 
-
-
-
     <repositories>
         <repository>
             <id>repo.jenkins-ci.org</id>
             <url>http://repo.jenkins-ci.org/public/</url>
         </repository>
-
+        <repository>
+            <id>xa</id>
+            <url>http://repository.atosworldline.com/nexus/content/repositories/xa/</url>
+        </repository>
         <repository>
             <id>xa-atos-snapshot</id>
             <url>http://repository.atosworldline.com/nexus/content/repositories/xa-snapshots/</url>

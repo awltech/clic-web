@@ -35,7 +35,7 @@ public class CommandProcessor {
         final int inDoubleQuote = 2;
         int state = normal;
         final StringTokenizer tok = new StringTokenizer(toProcess, "\"\' ", true);
-        final List<String> result = new ArrayList<String>();
+        final List<String> result = new ArrayList<>();
         final StringBuilder current = new StringBuilder();
         boolean lastTokenHasBeenQuoted = false;
 
@@ -57,17 +57,23 @@ public class CommandProcessor {
                         current.append(nextTok);
                     break;
                 default:
-                    if ("\'".equals(nextTok))
-                        state = inQuote;
-                    else if ("\"".equals(nextTok))
-                        state = inDoubleQuote;
-                    else if (" ".equals(nextTok)) {
-                        if (lastTokenHasBeenQuoted || current.length() != 0) {
-                            result.add(current.toString());
-                            current.setLength(0);
-                        }
-                    } else
-                        current.append(nextTok);
+                    switch (nextTok) {
+                        case "\'":
+                            state = inQuote;
+                            break;
+                        case "\"":
+                            state = inDoubleQuote;
+                            break;
+                        case " ":
+                            if (lastTokenHasBeenQuoted || current.length() != 0) {
+                                result.add(current.toString());
+                                current.setLength(0);
+                            }
+                            break;
+                        default:
+                            current.append(nextTok);
+                            break;
+                    }
                     lastTokenHasBeenQuoted = false;
                     break;
             }

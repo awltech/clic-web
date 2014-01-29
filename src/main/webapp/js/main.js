@@ -1,31 +1,34 @@
-(function ($, undefined) {
+/**
+ * Created by pierremarot on 12/12/2013.
+ */
+"use strict";
+(function ($) {
     //Remove history for security reason
-    /*for(var key in localStorage){
-     if(key.startsWith("clic-task_")){
-     localStorage.removeItem(key);
-     }
-     }*/
+    for (var key in localStorage) {
+        if (key.startsWith("clic-task_")) {
+            localStorage.removeItem(key);
+        }
+    }
+    //Get the history for that user
+    //noinspection JSUnresolvedVariable,JSUnresolvedFunction
+    cmdController.getHistory(function(r){
+       //noinspection JSUnresolvedFunction
+        localStorage.setItem("clic-task_0_commands", r.responseObject().history);
+    })
 
     var out, currentCmdParams, Commands;
 
-    $.getJSON("/jenkins/plugin/clic/js/commands.json",function(data){
+    $.getJSON("/jenkins/plugin/clic/js/commands.json", function (data) {
         Commands = data;
-
     });
-
-
-
-    /**
-     * Created by pierremarot on 12/12/2013.
-     */
 
     var CommandHandler = {
         call: function (name, params) {
-            if(name == "help"){
+            if (name == "help") {
                 helpExecute(params);
-            }else if(name == "list"){
+            } else if (name == "list") {
                 listExecute();
-            }else{
+            } else {
                 backExecute(params)
             }
         },
@@ -55,7 +58,7 @@
         },
         parseParams: function (cmd, input) {
             var indexFirstSpace = input.indexOf(" ");
-            var paramMandatory = this.getMandatoryParams(cmd.params)
+            var paramMandatory = this.getMandatoryParams(cmd.params);
             if (indexFirstSpace == -1) {
                 return(paramMandatory.length == 0);
             }
@@ -78,6 +81,8 @@
         },
         getMandatoryParams: function (params) {
             return _.filter(params, function (param) {
+
+                //noinspection JSUnresolvedVariable
                 return param.mandatory == true;
             });
         },
@@ -107,12 +112,13 @@
                             if (p.multiple && param.startsWith(p.name)) {
                                 multiple = true;
                             }
+                            //noinspection JSUnresolvedVariable
                             if (p.name == param || (p.miniName && p.miniName == param) || multiple) {
                                 //replace param mini name by param name
                                 if (!multiple) {
                                     param = p.name;
 
-                                }else{
+                                } else {
                                     i--;
                                 }
                                 //known param
@@ -124,7 +130,7 @@
 
                                     if (v == null || v[0].length <= 0) {
 
-                                        var v = inputParamsString.match(/=['|"][\w|.|?|=|&|+| |:|/|\-|\\]*['|"]/);
+                                        v = inputParamsString.match(/=['|"][\w|.|?|=|&|+| |:|/|\-|\\]*['|"]/);
                                         if (v == null) {
                                             return false;
                                         }
@@ -144,7 +150,7 @@
                                     currentCmdParams[param] = value;
                                     var u = inputParamsString.split(value);
                                     if (u.length >= 2) {
-                                        inputParamsString = inputParamsString.replace(value,"");
+                                        inputParamsString = inputParamsString.replace(value, "");
                                         if (!multiple) {
                                             params.splice(params.indexOf(p), 1);
                                         }
@@ -154,10 +160,9 @@
                                     if (!multiple) {
                                         params.splice(params.indexOf(p), 1);
                                     }
-
                                 }
                             }
-                        })
+                        });
                     } else {
                         return false;
                     }
@@ -170,10 +175,8 @@
             }
 
             inputParamsString = $.trim(inputParamsString);
-            if ((params.length != 0 && !CommandHandler.getMandatoryParams(params)) && (inputParamsString != "")) {
-                return false
-            }
-            return true;
+            return !((params.length != 0 && !CommandHandler.getMandatoryParams(params)) && (inputParamsString != ""));
+
         }
     };
 
@@ -183,6 +186,7 @@
         var ret = 0;
         var output = '';
         for (var object in Commands) {
+            //noinspection JSUnfilteredForInLoop,JSUnresolvedVariable
             output += object + Commands[object].doc + "\n";
         }
 
@@ -194,9 +198,11 @@
     var helpLogic = function (params, displayResult) {
         var ret = 0;
         var output = '';
+        //noinspection JSUnresolvedVariable
         var commandName = params[Commands.help.params[0].name];
         var command = Commands[commandName];
         if (command) {
+            //noinspection JSUnresolvedVariable
             output += commandName + ': ' + command.doc;
             output += '\n\tParameters:\nOption (* = required)\t\t\tDescription\n---------------------\t\t-----------------\n';
             if (!command.params) {
@@ -204,9 +210,11 @@
 
             } else {
                 _.each(command.params, function (param) {
+                    //noinspection JSUnresolvedVariable
                     if (param.mandatory) {
                         output += '* ';
                     }
+                    //noinspection JSUnresolvedVariable
                     output += param.name + ' ' + (param.docValue ? param.docValue : '') + '\t' + param.doc;
                     output += '\n';
                 });
@@ -220,7 +228,7 @@
             $(document).trigger("clicFinished", ret);
         }
         return ret;
-    }
+    };
 
     var helpExecute = function (params) {
         helpLogic(params, true);
@@ -233,26 +241,29 @@
             timeout = setInterval(function () {
                 callback(timestamp);
             }, 1000)
-        }
+        };
 
         var getLogs = function (timestamp) {
+            //noinspection JSUnresolvedVariable,JSUnresolvedFunction
             cmdController.getLogs(timestamp, function (r) {
+                //noinspection JSUnresolvedFunction
                 var result = r.responseObject();
                 if (result.log !== "") {
                     out.echo(result.log);
                 }
+                //noinspection JSUnresolvedVariable
                 if (result.finished && !stop) {
                     stop = true;
                     clearInterval(timeout);
+                    //noinspection JSUnresolvedVariable,JSUnresolvedFunction
                     cmdController.getExitCode(timestamp, function (r) {
+                        //noinspection JSUnresolvedFunction
                         $(document).trigger("clicFinished", r.responseObject());
                         out.resume();
-                    })
-
-                    return;
+                    });
                 }
-            })
-        }
+            });
+        };
 
         var command = "clic:mvn"; // don't need as we only support this command for now
         var ret = 0;
@@ -263,22 +274,26 @@
                 command += " ";
             }
             command += v;
-        })
+        });
+
+        //noinspection JSUnresolvedVariable
         cmdController.call(command, function (r) {
+            //noinspection JSUnresolvedFunction
             var result = r.responseObject();
             if (!result.startsWith("ERROR")) {
                 managePulling(result, getLogs);
             } else {
                 out.error(result);
+                //noinspection JSUnresolvedVariable,JSUnresolvedFunction
                 cmdController.getExitCode(timestamp, function (r) {
+                    //noinspection JSUnresolvedFunction
                     $(document).trigger("clicFinished", r.responseObject());
                     out.resume();
-                })
+                });
             }
         });
         return ret;
     };
-
 
 
     $('#terminal').terminal(function (c, term) {

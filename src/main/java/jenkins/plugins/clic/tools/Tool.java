@@ -1,6 +1,7 @@
 package jenkins.plugins.clic.tools;
 
 import hudson.Extension;
+import hudson.cli.CLI;
 import hudson.model.Hudson;
 import hudson.model.User;
 import jenkins.model.Jenkins;
@@ -20,6 +21,7 @@ public class Tool {
 
     private static final String BASE_DIRECTORY = "users";
     private static final String CLIC_DIRECTORY = "CliC";
+    private static final String HISTORY = "history.txt";
     private static final Logger LOGGER = Logger.getLogger(Tool.class.getName());
 
     public static String getUserName() {
@@ -49,7 +51,7 @@ public class Tool {
         return getLogPath(now + "");
     }
 
-
+    //Not Used anymore
     public static Path gethPath(String timestamp) {
         //change this with the home jenkins directory
 
@@ -82,15 +84,46 @@ public class Tool {
             // directory already exists
         }
         return path;
-
     }
+
+    public static Path getHistoryPath(){
+       return Paths.get(getRootDirectory(),BASE_DIRECTORY,getUserName(), CLIC_DIRECTORY,HISTORY);
+    }
+
+    public static List<String> getHistory(){
+        List<String> ret = null;
+        try {
+            ret = Files.readAllLines(getHistoryPath(), Charset.defaultCharset());
+        } catch (IOException e) {
+           ret = new ArrayList<>();
+           ret.add("No history");
+        }
+        return ret;
+    }
+
+    public static void addCommandToHistory(String command){
+        Path path = getHistoryPath();
+        Writer writer = getNewWriter(path);
+
+        try {
+            if(!Files.exists(path)){
+                Files.createDirectories(path);
+            }
+            writer.write(command + "\n");
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public static String getTimestamp(Path path){
         return path.getParent().getFileName().toString();
     }
 
     public static List<Path> getAllCommands() {
-        List<Path> paths = new ArrayList<Path>();
+        List<Path> paths = new ArrayList<>();
         try (DirectoryStream<Path> ds =
                      Files.newDirectoryStream(Paths.get(getRootDirectory(), BASE_DIRECTORY, getUserName()))) {
             for (Path path : ds) {

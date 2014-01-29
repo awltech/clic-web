@@ -77,6 +77,9 @@ public class CommandHandler {
         }
 
         if (statusOk && params.length != 0) {
+            //Store command in history (only the valid ones for now)
+            Tool.addCommandToHistory(commandStr);
+
             Command command = UsersCommands.addCommand(Tool.getUserName(), pathLog, pathResult);
             command.setCommand(commandStr);
 
@@ -97,18 +100,13 @@ public class CommandHandler {
         @JavaScriptMethod
         @SuppressWarnings("unused")
         public CommandLog getLogs(String timestamp) {
-        String ret = "";
+        String ret;
         Command command = UsersCommands.getCommand(Tool.getUserName(), timestamp);
 
         List<String> list = UsersCommands.getCommandLog(Tool.getUserName(), timestamp);
 
-        Iterator it = list.iterator();
-        while (it.hasNext()) {
-            ret += (String) it.next();
-            if (it.hasNext()) {
-                ret += '\n';
-            }
-        }
+        ret = makeString(list);
+
         return new CommandLog(ret,command.isFinished());
     }
 
@@ -124,10 +122,76 @@ public class CommandHandler {
         return command.getExitCode();
     }
 
+    @JavaScriptMethod
+    @SuppressWarnings("unused")
+    public History getHistory(){
+      /* return makeString(Tool.getHistory());*/
+        return new History(Tool.getHistory());
+
+    }
+
     private void init() {
         parser = new OptionParser();
         mCCL = new MavenClicCommandLine();
         mCCL.configureParser(parser);
+    }
+
+    private String makeString(List<String> list){
+        String ret = "";
+        Iterator it = list.iterator();
+        while (it.hasNext()) {
+            ret += (String) it.next();
+            if (it.hasNext()) {
+                ret += '\n';
+            }
+        }
+        return ret;
+    }
+
+    private class History{
+        private List<String> history;
+
+        public History(List<String> history){
+            this.history = history;
+        }
+
+        @SuppressWarnings("unused")
+        public List<String> getHistory() {
+            return history;
+        }
+        @SuppressWarnings("unused")
+        public void setHistory(List<String> history) {
+            this.history = history;
+        }
+    }
+
+    private class CommandLog{
+        private String log;
+
+        private boolean finished;
+
+        public CommandLog(String log,boolean finished){
+            this.log = log;
+            this.finished = finished;
+        }
+
+        @SuppressWarnings("unused")
+        public String getLog() {
+            return log;
+        }
+
+        @SuppressWarnings("unused")
+        public void setLog(String log) {
+            this.log = log;
+        }
+
+        public boolean isFinished() {
+            return finished;
+        }
+
+        public void setFinished(boolean finished) {
+            this.finished = finished;
+        }
     }
 
 }

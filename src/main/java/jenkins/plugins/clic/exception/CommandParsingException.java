@@ -6,6 +6,7 @@ package jenkins.plugins.clic.exception;
  * Time: 17:31
  */
 public class CommandParsingException extends Exception{
-
-
+    public CommandParsingException(String message) {
+        super(message);
+    }
 }

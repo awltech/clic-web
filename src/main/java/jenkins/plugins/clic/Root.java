@@ -2,7 +2,6 @@ package jenkins.plugins.clic;
 
 import hudson.Extension;
 import hudson.model.RootAction;
-import hudson.security.ACL;
 import hudson.security.Permission;
 import jenkins.plugins.clic.controller.CommandHandler;
 import jenkins.plugins.clic.tools.Tool;
