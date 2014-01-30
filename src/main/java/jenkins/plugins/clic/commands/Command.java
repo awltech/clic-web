@@ -1,6 +1,7 @@
 package jenkins.plugins.clic.commands;
 
 import com.thoughtworks.xstream.XStream;
+import hudson.XmlFile;
 import jenkins.plugins.clic.controller.pojo.CommandResult;
 import jenkins.plugins.clic.tools.Tool;
 
@@ -43,10 +44,7 @@ public class Command {
             }
         } else {
             try {
-                BufferedReader bR = Files.newBufferedReader(pathResult, Charset.defaultCharset());
-                exitCode = bR.read();
-                bR.close();
-                //todo : result files and so... init exit code
+                loadResult();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -123,5 +121,16 @@ public class Command {
             xs.toXML(result,writer);
             writer.flush();
             writer.close();
+    }
+
+    private void loadResult() throws IOException{
+        if(Files.exists(pathResult)){
+            XStream xs = new XStream();
+            XmlFile xml = new XmlFile(xs,pathResult.toFile());
+            CommandResult result = (CommandResult) xml.read();
+            this.exitCode = result.getExitCode();
+            this.command = result.getCommand();
+        }
+
     }
 }
