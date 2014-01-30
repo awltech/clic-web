@@ -82,6 +82,7 @@ public class CommandHandler {
             //Store command in history (only the valid ones for now)
             Tool.addCommandToHistory(commandStr);
             Command command = UsersCommands.addCommand(Tool.getUserName(), pathLog, pathResult);
+            //can be moved in constructor
             command.setCommand(commandStr);
 
             FileOutputHandler iOH = new FileOutputHandler(pathLog);
@@ -120,7 +121,11 @@ public class CommandHandler {
         } catch (NoSuchElementException e) {
             return -1;
         }
-        return command.getExitCode();
+        try {
+            return command.getExitCode();
+        } catch (IOException e) {
+            return Command.IOEXCEPTION;
+        }
     }
 
     @JavaScriptMethod

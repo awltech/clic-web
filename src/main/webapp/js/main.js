@@ -329,8 +329,10 @@
         if (ret === 0) {
             out.echo("Execution: OK");
         }
-        else {
+        else if(ret === 1){
             out.error("Execution: KO");
+        }else{
+            out.error("An error occurred. Unable to know the exit code");
         }
     });
 

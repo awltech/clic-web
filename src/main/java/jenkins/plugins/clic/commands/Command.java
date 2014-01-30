@@ -1,11 +1,14 @@
 package jenkins.plugins.clic.commands;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
+import com.thoughtworks.xstream.XStream;
+import jenkins.plugins.clic.controller.pojo.CommandResult;
+import jenkins.plugins.clic.tools.Tool;
+
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +18,8 @@ import java.util.List;
  * Time: 12:28
  */
 public class Command {
+
+    public static final int IOEXCEPTION = -1;
 
     private boolean isFinished;
     private int exitCode;
@@ -48,7 +53,6 @@ public class Command {
         }
     }
 
-
     public String getTimestamp() {
         return pathLog.getParent().getFileName().toString();
     }
@@ -77,7 +81,6 @@ public class Command {
         return ret;
     }
 
-
     public void complete() {
         isFinished = true;
     }
@@ -95,11 +98,10 @@ public class Command {
         this.exitCode = exitCode;
     }
 
-    public int getExitCode() {
+    public int getExitCode() throws IOException{
         closeBuffer();
         saveResult();
         return exitCode;
-
     }
 
     public String getCommand() {
@@ -110,23 +112,16 @@ public class Command {
         this.command = command;
     }
 
-    private void closeBuffer() {
-        try {
+    private void closeBuffer() throws IOException {
             buffer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
-    private void saveResult() {
-        try {
-            Path path = Files.createFile(pathResult);
-            BufferedWriter writer = Files.newBufferedWriter(path, Charset.defaultCharset());
-            writer.write(exitCode + "");
+    private void saveResult() throws IOException{
+            CommandResult result = new CommandResult(exitCode, command);
+            Writer writer = Tool.getNewWriter(pathResult, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+            XStream xs = new XStream();
+            xs.toXML(result,writer);
             writer.flush();
             writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

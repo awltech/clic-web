@@ -22,7 +22,7 @@ public class Tool {
     private static final String BASE_DIRECTORY = "users";
     private static final String CLIC_DIRECTORY = "CliC";
     private static final String HISTORY = "history.txt";
-    private static final Logger LOGGER = Logger.getLogger(Tool.class.getName());
+    private static final int NUMBER_OF_COMMAND_STORED = 10;
 
     public static String getUserName() {
         return getMe().toString();
@@ -94,9 +94,9 @@ public class Tool {
         List<String> ret;
         Path path = getHistoryPath();
         try {
-            if(Files.exists(path)){
+            if (Files.exists(path)) {
                 ret = Files.readAllLines(path, Charset.defaultCharset());
-            }else{
+            } else {
                 ret = new ArrayList<>();
                 ret.add("No history");
             }
@@ -110,19 +110,31 @@ public class Tool {
 
     public static void addCommandToHistory(String command) {
         Path path = getHistoryPath();
+        Writer writer;
         try {
-            if(Files.exists(path)){
+            if (!Files.exists(path)) {
                 Files.createFile(path);
             }
-            Writer writer = getNewWriter(path);
-            writer.write(command + "\n");
+            List<String> history = Files.readAllLines(path, Charset.defaultCharset());
+
+            if (history.size() < NUMBER_OF_COMMAND_STORED) {
+                writer = getNewWriter(path, StandardOpenOption.APPEND,StandardOpenOption.WRITE);
+            } else {
+                history.remove(0);
+
+                writer = getNewWriter(path, StandardOpenOption.TRUNCATE_EXISTING,StandardOpenOption.WRITE);
+                for (String c : history) {
+                    writer.write(c + '\n');
+                }
+            }
+            writer.write(command + '\n');
             writer.flush();
             writer.close();
+
         } catch (IOException e) {
-            //e.printStackTrace();
+            e.printStackTrace();
         }
     }
-
 
     public static String getTimestamp(Path path) {
         return path.getParent().getFileName().toString();
@@ -142,8 +154,9 @@ public class Tool {
         return paths;
     }
 
-    public static Writer getNewWriter(Path path) throws IOException{
-        return Files.newBufferedWriter(path, Charset.defaultCharset(), StandardOpenOption.APPEND);
+    public static Writer getNewWriter(Path path, StandardOpenOption... mode) throws IOException {
+        return Files.newBufferedWriter(path, Charset.defaultCharset(), mode);
+
     }
 
     public static String withoutExtension(String fileName) {
