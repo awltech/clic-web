@@ -3,6 +3,8 @@ package jenkins.plugins.clic.controller;
 import com.worldline.clic.utils.mvn.MavenClicCommandLine;
 import jenkins.plugins.clic.commands.Command;
 import jenkins.plugins.clic.commands.UsersCommands;
+import jenkins.plugins.clic.controller.pojo.CommandLog;
+import jenkins.plugins.clic.controller.pojo.History;
 import jenkins.plugins.clic.tools.CommandProcessor;
 import jenkins.plugins.clic.tools.Tool;
 import joptsimple.OptionParser;
@@ -143,53 +145,6 @@ public class CommandHandler {
             }
         }
         return ret;
-    }
-
-    private class History {
-        private List<String> history;
-
-        public History(List<String> history) {
-            this.history = history;
-        }
-
-        @SuppressWarnings("unused")
-        public List<String> getHistory() {
-            return history;
-        }
-
-        @SuppressWarnings("unused")
-        public void setHistory(List<String> history) {
-            this.history = history;
-        }
-    }
-
-    private class CommandLog {
-        private String log;
-
-        private boolean finished;
-
-        public CommandLog(String log, boolean finished) {
-            this.log = log;
-            this.finished = finished;
-        }
-
-        @SuppressWarnings("unused")
-        public String getLog() {
-            return log;
-        }
-
-        @SuppressWarnings("unused")
-        public void setLog(String log) {
-            this.log = log;
-        }
-
-        public boolean isFinished() {
-            return finished;
-        }
-
-        public void setFinished(boolean finished) {
-            this.finished = finished;
-        }
     }
 
 }

@@ -3,18 +3,12 @@
  */
 "use strict";
 (function ($) {
-    //Remove history for security reason
+    //Clean history for security reason
     for (var key in localStorage) {
         if (key.startsWith("clic-task_")) {
             localStorage.removeItem(key);
         }
     }
-    //Get the history for that user
-    //noinspection JSUnresolvedVariable,JSUnresolvedFunction
-    cmdController.getHistory(function (r) {
-        //noinspection JSUnresolvedFunction
-        localStorage.setItem("clic-task_0_commands", r.responseObject().history);
-    })
 
     var out, currentCmdParams, Commands;
 
@@ -295,31 +289,40 @@
         return ret;
     };
 
+    //Get the history for that user
+    //noinspection JSUnresolvedVariable,JSUnresolvedFunction
+    //noinspection JSUnresolvedVariable,JSUnresolvedFunction
+    cmdController.getHistory(function (r) {
+        //noinspection JSUnresolvedFunction
+        var commands = r.responseObject().history;
+        localStorage['clic-task_0_commands'] = $.json_stringify(commands);
 
-    $('#terminal').terminal(function (c, term) {
-        out = term;
-        var cmd = CommandHandler.validateCommand(c);
-        if (cmd) {
 
-            currentCmdParams = {};
-            var paramsOk = CommandHandler.parseParams(cmd, c);
-            if (paramsOk) {
-                CommandHandler.call(cmd.name, currentCmdParams);
+        $('#terminal').terminal(function (c, term) {
+            out = term;
+            var cmd = CommandHandler.validateCommand(c);
+            if (cmd) {
+
+                currentCmdParams = {};
+                var paramsOk = CommandHandler.parseParams(cmd, c);
+                if (paramsOk) {
+                    CommandHandler.call(cmd.name, currentCmdParams);
+                }
+                else {
+                    term.error('Bad Usage ! ');
+                    helpLogic({"-command": cmd.name}, false)
+                }
             }
             else {
-                term.error('Bad Usage ! ');
-                helpLogic({"-command": cmd.name}, false)
+                //command not found or bad usage. Output are done in validateCommand() function
             }
-        }
-        else {
-            //command not found or bad usage. Output are done in validateCommand() function
-        }
-    }, {
-        greetings: 'Welcome in CLiC!\n Please enter your command  or "list" to know about available commands.',
-        name: 'clic-task',
-        height: 400,
-        prompt: '>'
-    });
+        }, {
+            greetings: 'Welcome in CLiC!\n Please enter your command  or "list" to know about available commands.',
+            name: 'clic-task',
+            height: 400,
+            prompt: '>'
+        })
+    })
 
     $(document).on("clicFinished", function (e, ret) {
         out.echo("---");

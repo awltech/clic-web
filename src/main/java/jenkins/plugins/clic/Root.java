@@ -1,8 +1,10 @@
 package jenkins.plugins.clic;
 
 import hudson.Extension;
+import hudson.model.Job;
 import hudson.model.RootAction;
 import hudson.security.Permission;
+import hudson.security.PermissionGroup;
 import jenkins.plugins.clic.controller.CommandHandler;
 import jenkins.plugins.clic.tools.Tool;
 
@@ -15,7 +17,7 @@ public class Root implements RootAction {
 
 
     public String getIconFileName() {
-        if (Tool.getMe().hasPermission(Permission.CREATE)) {
+        if (Tool.getMe() !=null) {
             return "terminal.png";
         } else {
             return null;
@@ -24,7 +26,7 @@ public class Root implements RootAction {
 
 
     public String getDisplayName() {
-        if (Tool.getMe().hasPermission(Permission.CREATE)) {
+        if (Tool.getMe() !=null) {
             return "CLiC";
         } else {
             return null;
@@ -45,7 +47,7 @@ public class Root implements RootAction {
 
     @SuppressWarnings("unsued")
     public Permission getRequiredPermission() {
-        return Permission.CREATE;
+        return Job.CREATE;
     }
 
 }

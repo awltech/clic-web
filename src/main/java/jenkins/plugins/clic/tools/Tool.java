@@ -91,29 +91,35 @@ public class Tool {
     }
 
     public static List<String> getHistory() {
-        List<String> ret = null;
+        List<String> ret;
+        Path path = getHistoryPath();
         try {
-            ret = Files.readAllLines(getHistoryPath(), Charset.defaultCharset());
+            if(Files.exists(path)){
+                ret = Files.readAllLines(path, Charset.defaultCharset());
+            }else{
+                ret = new ArrayList<>();
+                ret.add("No history");
+            }
+
         } catch (IOException e) {
             ret = new ArrayList<>();
-            ret.add("No history");
+            ret.add("Problem while loading history");
         }
         return ret;
     }
 
     public static void addCommandToHistory(String command) {
         Path path = getHistoryPath();
-        Writer writer = getNewWriter(path);
-
         try {
-            if (!Files.exists(path)) {
-                Files.createDirectories(path);
+            if(Files.exists(path)){
+                Files.createFile(path);
             }
+            Writer writer = getNewWriter(path);
             writer.write(command + "\n");
             writer.flush();
             writer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 
@@ -131,20 +137,13 @@ public class Tool {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return paths;
     }
 
-    public static Writer getNewWriter(Path path) {
-        Writer writer = null;
-        try {
-            writer = Files.newBufferedWriter(path, Charset.defaultCharset(), StandardOpenOption.CREATE_NEW);
-        } catch (IOException ex) {
-            LOGGER.info("FATAL ERROR while creating files :" + path.toString() + "\n\n");
-            ex.printStackTrace();
-        }
-        return writer;
+    public static Writer getNewWriter(Path path) throws IOException{
+        return Files.newBufferedWriter(path, Charset.defaultCharset(), StandardOpenOption.APPEND);
     }
 
     public static String withoutExtension(String fileName) {
