@@ -79,7 +79,6 @@ public class CommandHandler {
         if (statusOk && params.length != 0) {
             //Store command in history (only the valid ones for now)
             Tool.addCommandToHistory(commandStr);
-
             Command command = UsersCommands.addCommand(Tool.getUserName(), pathLog, pathResult);
             command.setCommand(commandStr);
 
@@ -125,8 +124,7 @@ public class CommandHandler {
     @JavaScriptMethod
     @SuppressWarnings("unused")
     public History getHistory(){
-      /* return makeString(Tool.getHistory());*/
-        return new History(Tool.getHistory());
+       return new History(Tool.getHistory());
 
     }
 

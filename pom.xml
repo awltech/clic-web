@@ -9,7 +9,7 @@
 
   <groupId>org.jenkins-ci.main</groupId>
   <artifactId>clic</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.1.0-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
     <name>CLiC Web Jenkins Plugin</name>
@@ -38,7 +38,7 @@
         <dependency>
             <groupId>com.worldline.clic</groupId>
             <artifactId>utils</artifactId>
-            <version>0.1.3-SNAPSHOT</version>
+            <version>0.2.0</version>
         </dependency>
         <dependency>
             <groupId>net.sf.jopt-simple</groupId>
@@ -59,12 +59,8 @@
             <url>http://repo.jenkins-ci.org/public/</url>
         </repository>
         <repository>
-            <id>xa</id>
-            <url>http://repository.atosworldline.com/nexus/content/repositories/xa/</url>
-        </repository>
-        <repository>
-            <id>xa-atos-snapshot</id>
-            <url>http://repository.atosworldline.com/nexus/content/repositories/xa-snapshots/</url>
+            <id>worldline</id>
+            <url>http://repository.atosworldline.com/nexus/content/repositories/public/</url>
         </repository>
     </repositories>
     <pluginRepositories>
