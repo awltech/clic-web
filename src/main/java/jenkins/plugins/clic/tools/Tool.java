@@ -40,7 +40,7 @@ public class Tool {
         }
     }
 
-    private static String getRootDirectory(){
+    private static String getRootDirectory() {
         return Jenkins.getInstance().getRootDir().getAbsolutePath();
     }
 
@@ -55,7 +55,7 @@ public class Tool {
     public static Path gethPath(String timestamp) {
         //change this with the home jenkins directory
 
-        Path path = Paths.get(getRootDirectory(), BASE_DIRECTORY, getUserName(),CLIC_DIRECTORY, timestamp);
+        Path path = Paths.get(getRootDirectory(), BASE_DIRECTORY, getUserName(), CLIC_DIRECTORY, timestamp);
         try {
             Files.createDirectories(path);
         } catch (IOException e) {
@@ -65,8 +65,8 @@ public class Tool {
 
     }
 
-    public static Path getLogPath(String timestamp){
-        Path path = Paths.get(getRootDirectory(), BASE_DIRECTORY, getUserName(),CLIC_DIRECTORY, timestamp,"log.txt");
+    public static Path getLogPath(String timestamp) {
+        Path path = Paths.get(getRootDirectory(), BASE_DIRECTORY, getUserName(), CLIC_DIRECTORY, timestamp, "log.txt");
         try {
             Files.createDirectories(path.getParent());
         } catch (IOException e) {
@@ -76,8 +76,8 @@ public class Tool {
 
     }
 
-    public static Path getResultPath(String timestamp){
-        Path path = Paths.get(getRootDirectory(), BASE_DIRECTORY, getUserName(), CLIC_DIRECTORY, timestamp,"result.xml");
+    public static Path getResultPath(String timestamp) {
+        Path path = Paths.get(getRootDirectory(), BASE_DIRECTORY, getUserName(), CLIC_DIRECTORY, timestamp, "result.xml");
         try {
             Files.createDirectories(path.getParent());
         } catch (IOException e) {
@@ -86,27 +86,27 @@ public class Tool {
         return path;
     }
 
-    public static Path getHistoryPath(){
-       return Paths.get(getRootDirectory(),BASE_DIRECTORY,getUserName(), CLIC_DIRECTORY,HISTORY);
+    public static Path getHistoryPath() {
+        return Paths.get(getRootDirectory(), BASE_DIRECTORY, getUserName(), CLIC_DIRECTORY, HISTORY);
     }
 
-    public static List<String> getHistory(){
+    public static List<String> getHistory() {
         List<String> ret = null;
         try {
             ret = Files.readAllLines(getHistoryPath(), Charset.defaultCharset());
         } catch (IOException e) {
-           ret = new ArrayList<>();
-           ret.add("No history");
+            ret = new ArrayList<>();
+            ret.add("No history");
         }
         return ret;
     }
 
-    public static void addCommandToHistory(String command){
+    public static void addCommandToHistory(String command) {
         Path path = getHistoryPath();
         Writer writer = getNewWriter(path);
 
         try {
-            if(!Files.exists(path)){
+            if (!Files.exists(path)) {
                 Files.createDirectories(path);
             }
             writer.write(command + "\n");
@@ -118,7 +118,7 @@ public class Tool {
     }
 
 
-    public static String getTimestamp(Path path){
+    public static String getTimestamp(Path path) {
         return path.getParent().getFileName().toString();
     }
 

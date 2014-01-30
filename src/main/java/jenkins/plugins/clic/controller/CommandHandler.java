@@ -70,7 +70,7 @@ public class CommandHandler {
             init();
             options = parser.parse(params);
         } catch (Exception e) {
-            ret = " during parsing of the command. Please ensure that all parameters have the correct syntax." ;
+            ret = " during parsing of the command. Please ensure that all parameters have the correct syntax.";
             e.printStackTrace();
             statusOk = false;
             e.printStackTrace();
@@ -96,9 +96,9 @@ public class CommandHandler {
         return ret;
     }
 
-        @JavaScriptMethod
-        @SuppressWarnings("unused")
-        public CommandLog getLogs(String timestamp) {
+    @JavaScriptMethod
+    @SuppressWarnings("unused")
+    public CommandLog getLogs(String timestamp) {
         String ret;
         Command command = UsersCommands.getCommand(Tool.getUserName(), timestamp);
 
@@ -106,7 +106,7 @@ public class CommandHandler {
 
         ret = makeString(list);
 
-        return new CommandLog(ret,command.isFinished());
+        return new CommandLog(ret, command.isFinished());
     }
 
     @JavaScriptMethod
@@ -123,9 +123,8 @@ public class CommandHandler {
 
     @JavaScriptMethod
     @SuppressWarnings("unused")
-    public History getHistory(){
-       return new History(Tool.getHistory());
-
+    public History getHistory() {
+        return new History(Tool.getHistory());
     }
 
     private void init() {
@@ -134,7 +133,7 @@ public class CommandHandler {
         mCCL.configureParser(parser);
     }
 
-    private String makeString(List<String> list){
+    private String makeString(List<String> list) {
         String ret = "";
         Iterator it = list.iterator();
         while (it.hasNext()) {
@@ -146,10 +145,10 @@ public class CommandHandler {
         return ret;
     }
 
-    private class History{
+    private class History {
         private List<String> history;
 
-        public History(List<String> history){
+        public History(List<String> history) {
             this.history = history;
         }
 
@@ -157,18 +156,19 @@ public class CommandHandler {
         public List<String> getHistory() {
             return history;
         }
+
         @SuppressWarnings("unused")
         public void setHistory(List<String> history) {
             this.history = history;
         }
     }
 
-    private class CommandLog{
+    private class CommandLog {
         private String log;
 
         private boolean finished;
 
-        public CommandLog(String log,boolean finished){
+        public CommandLog(String log, boolean finished) {
             this.log = log;
             this.finished = finished;
         }

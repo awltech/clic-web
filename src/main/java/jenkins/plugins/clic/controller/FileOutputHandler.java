@@ -17,7 +17,7 @@ public class FileOutputHandler implements InvocationOutputHandler {
 
     private BufferedWriter bw;
 
-    public FileOutputHandler(Path path){
+    public FileOutputHandler(Path path) {
         try {
             bw = Files.newBufferedWriter(path, Charset.defaultCharset());
         } catch (IOException e) {
@@ -36,7 +36,7 @@ public class FileOutputHandler implements InvocationOutputHandler {
         }
     }
 
-    public void closeBuffer(){
+    public void closeBuffer() {
         try {
             bw.close();
         } catch (IOException e) {

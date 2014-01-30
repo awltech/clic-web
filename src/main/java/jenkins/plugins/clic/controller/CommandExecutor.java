@@ -32,6 +32,7 @@ public class CommandExecutor extends Thread {
         this.iOH = iOH;
         this.command = command;
     }
+
     public void run() {
 
         try {
@@ -53,8 +54,7 @@ public class CommandExecutor extends Thread {
             iOH.consumeLine("ERROR during parsing of the command. Please ensure that all parameters have the correct syntax.");
             command.setExitCode(1);
             e.printStackTrace();
-        }
-        finally {
+        } finally {
             command.finish();
             FileOutputHandler fOH = (FileOutputHandler) iOH;
             fOH.closeBuffer();

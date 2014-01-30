@@ -9,24 +9,24 @@ import jenkins.plugins.clic.tools.Tool;
 
 @Extension
 @SuppressWarnings("unused")
-public class Root implements RootAction{
+public class Root implements RootAction {
 
     private static CommandHandler ch;
 
 
     public String getIconFileName() {
-        if(Tool.getMe().hasPermission(Permission.CREATE)){
+        if (Tool.getMe().hasPermission(Permission.CREATE)) {
             return "terminal.png";
-        }else{
+        } else {
             return null;
         }
     }
 
 
     public String getDisplayName() {
-        if(Tool.getMe().hasPermission(Permission.CREATE)){
+        if (Tool.getMe().hasPermission(Permission.CREATE)) {
             return "CLiC";
-        }else{
+        } else {
             return null;
         }
     }
@@ -36,15 +36,15 @@ public class Root implements RootAction{
     }
 
     @SuppressWarnings("unused")
-    public CommandHandler getCommandHandler(){
-        if(ch == null){
+    public CommandHandler getCommandHandler() {
+        if (ch == null) {
             ch = new CommandHandler();
         }
         return ch;
-   }
+    }
 
     @SuppressWarnings("unsued")
-    public Permission getRequiredPermission(){
+    public Permission getRequiredPermission() {
         return Permission.CREATE;
     }
 

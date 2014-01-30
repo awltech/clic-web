@@ -11,8 +11,8 @@
     }
     //Get the history for that user
     //noinspection JSUnresolvedVariable,JSUnresolvedFunction
-    cmdController.getHistory(function(r){
-       //noinspection JSUnresolvedFunction
+    cmdController.getHistory(function (r) {
+        //noinspection JSUnresolvedFunction
         localStorage.setItem("clic-task_0_commands", r.responseObject().history);
     })
 

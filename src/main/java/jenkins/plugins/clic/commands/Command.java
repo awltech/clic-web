@@ -23,7 +23,7 @@ public class Command {
     private BufferedReader buffer = null;
     private String command;
 
-    public Command(Path pathLog,Path pathResult) {
+    public Command(Path pathLog, Path pathResult) {
         this.pathLog = pathLog;
         this.pathResult = pathResult;
         this.isFinished = Files.exists(pathResult);
@@ -36,21 +36,17 @@ public class Command {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-        else{
+        } else {
             try {
-               BufferedReader bR = Files.newBufferedReader(pathResult,Charset.defaultCharset());
-               exitCode = bR.read();
-               bR.close();
-               //todo : result files and so... init exit code
+                BufferedReader bR = Files.newBufferedReader(pathResult, Charset.defaultCharset());
+                exitCode = bR.read();
+                bR.close();
+                //todo : result files and so... init exit code
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
-
-
-
 
 
     public String getTimestamp() {
@@ -70,7 +66,7 @@ public class Command {
         } else {
             String line;
             try {
-                while((line = buffer.readLine()) != null){
+                while ((line = buffer.readLine()) != null) {
                     ret.add(line);
                 }
             } catch (IOException e) {
@@ -86,19 +82,20 @@ public class Command {
         isFinished = true;
     }
 
-    public void finish(){
+    public void finish() {
         isFinished = true;
     }
+
     public boolean isFinished() {
 
         return isFinished;
     }
 
-    public void setExitCode(int exitCode){
+    public void setExitCode(int exitCode) {
         this.exitCode = exitCode;
     }
 
-    public int getExitCode(){
+    public int getExitCode() {
         closeBuffer();
         saveResult();
         return exitCode;
@@ -113,7 +110,7 @@ public class Command {
         this.command = command;
     }
 
-    private void closeBuffer(){
+    private void closeBuffer() {
         try {
             buffer.close();
         } catch (IOException e) {
@@ -121,11 +118,11 @@ public class Command {
         }
     }
 
-    private void saveResult(){
+    private void saveResult() {
         try {
             Path path = Files.createFile(pathResult);
-            BufferedWriter writer = Files.newBufferedWriter(path,Charset.defaultCharset());
-            writer.write(exitCode+"");
+            BufferedWriter writer = Files.newBufferedWriter(path, Charset.defaultCharset());
+            writer.write(exitCode + "");
             writer.flush();
             writer.close();
         } catch (IOException e) {
