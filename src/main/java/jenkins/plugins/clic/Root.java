@@ -4,7 +4,6 @@ import hudson.Extension;
 import hudson.model.Job;
 import hudson.model.RootAction;
 import hudson.security.Permission;
-import hudson.security.PermissionGroup;
 import jenkins.plugins.clic.controller.CommandHandler;
 import jenkins.plugins.clic.tools.Tool;
 

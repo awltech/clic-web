@@ -12,7 +12,11 @@
 
     var out, currentCmdParams, Commands;
 
-    $.getJSON("/jenkins/plugin/clic/js/commands.json", function (data) {
+    /*get the json that contain all the commands configurations.
+    Used for front validation*/
+
+    //noinspection JSUnresolvedVariable
+    $.getJSON(rootURL + "/plugin/clic/js/commands.json", function (data) {
         Commands = data;
     });
 
@@ -322,7 +326,7 @@
             height: 400,
             prompt: '>'
         })
-    })
+    });
 
     $(document).on("clicFinished", function (e, ret) {
         out.echo("---");
