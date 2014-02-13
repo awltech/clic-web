@@ -4,11 +4,13 @@
 "use strict";
 (function ($) {
     //Clean history for security reason
-    for (var key in localStorage) {
-        if (key.startsWith("clic-task_")) {
-            localStorage.removeItem(key);
+    $(window).unload(function(){
+        for (var key in localStorage) {
+            if (key.startsWith("clic-task_")) {
+                localStorage.removeItem(key);
+            }
         }
-    }
+    })
 
     var out, currentCmdParams, Commands;
 
@@ -94,7 +96,7 @@
                 inputParamsString = $.trim(inputParamsString);
 
                 if (inputParamsString.indexOf("-") == 0) {
-                    var r = inputParamsString.match(/^\-{1,2}[a-zA-Z0-9][a-zA-Z0-9-]*/);
+                    var r = inputParamsString.match(/^\-{1,2}[a-zA-Z0-9][\.a-zA-Z0-9-]*/);
                     if (r == null) {
                         return false;
                     }
@@ -106,6 +108,10 @@
                         inputParamsString = $.trim(t[1]);
                         _.each(params, function (p) {
                             var multiple = false;
+                            //wierd ! Happen with <= IE8
+                            if(!p){
+                                return;
+                            }
                             //multiple is parameters that kind be repeated in command like -D
                             if (p.multiple && param.startsWith(p.name)) {
                                 multiple = true;

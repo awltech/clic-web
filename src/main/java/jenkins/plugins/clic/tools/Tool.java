@@ -1,12 +1,9 @@
 package jenkins.plugins.clic.tools;
 
-import hudson.Extension;
-import hudson.cli.CLI;
 import hudson.model.Hudson;
 import hudson.model.User;
 import jenkins.model.Jenkins;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.Charset;
@@ -14,9 +11,7 @@ import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
 
-@Extension
 public class Tool {
 
     private static final String BASE_DIRECTORY = "users";
