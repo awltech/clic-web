@@ -3,6 +3,7 @@ package jenkins.plugins.clic.tools;
 import hudson.model.Hudson;
 import hudson.model.User;
 import jenkins.model.Jenkins;
+import jenkins.plugins.clic.controller.pojo.Alias;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -17,6 +18,7 @@ public class Tool {
     private static final String BASE_DIRECTORY = "users";
     private static final String CLIC_DIRECTORY = "CliC";
     private static final String HISTORY = "history.txt";
+    private static final String ALIAS = "alias.xml";
     private static final int NUMBER_OF_COMMAND_STORED = 10;
 
     public static String getUserName() {
@@ -83,6 +85,10 @@ public class Tool {
 
     public static Path getHistoryPath() {
         return Paths.get(getRootDirectory(), BASE_DIRECTORY, getUserName(), CLIC_DIRECTORY, HISTORY);
+    }
+
+    public static Path getAliasPath() {
+        return Paths.get(getRootDirectory(), BASE_DIRECTORY, getUserName(), CLIC_DIRECTORY, ALIAS);
     }
 
     public static List<String> getHistory() {

@@ -8,6 +8,7 @@
             <div id="terminal" class="terminal"  style="height:200px;"></div>
         </l:main-panel>
         <script>
+            var aliasController = <st:bind value="${it.aliasHandler}"/>
             var cmdController = <st:bind value="${it.commandHandler}"/>
         </script>
         <script src="${rootURL}/plugin/clic/js/jquery.js"></script>

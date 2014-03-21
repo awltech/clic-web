@@ -4,7 +4,7 @@
 "use strict";
 (function ($) {
     //Clean history for security reason
-    $(window).unload(function(){
+    $(window).unload(function () {
         for (var key in localStorage) {
             if (key.startsWith("clic-task_")) {
                 localStorage.removeItem(key);
@@ -12,10 +12,19 @@
         }
     })
 
-    var out, currentCmdParams, Commands;
+    var out, currentCmdParams, Commands, Aliasses;
 
+    /**
+     * Get all the user's aliasses
+     */
+    aliasController.loadAlias(function (result) {
+        var aliasses = result.responseObject();
+        if (aliasses) {
+            Aliasses = aliasses;
+        }
+    });
     /*get the json that contain all the commands configurations.
-    Used for front validation*/
+     Used for front validation*/
 
     //noinspection JSUnresolvedVariable
     $.getJSON(rootURL + "/plugin/clic/js/commands.json", function (data) {
@@ -24,12 +33,18 @@
 
     var CommandHandler = {
         call: function (name, params) {
-            if (name == "help") {
-                helpExecute(params);
-            } else if (name == "list") {
-                listExecute();
-            } else {
-                backExecute(params)
+            switch (name) {
+                case "help":
+                    helpExecute(params);
+                    break;
+                case "list":
+                    listExecute();
+                    break;
+                case "alias":
+                    aliasExecute(params);
+                    break;
+                default :
+                    backExecute(params);
             }
         },
         validateCommand: function (input) {
@@ -91,8 +106,11 @@
             var inputParamsString = input;
             //keep number of param in a var because params is not immutable
             var nbParam = params.length;
+            var isOk = true;
             for (var i = 0; i < nbParam; i++) {
-
+                if (!isOk) {
+                    return false;
+                }
                 inputParamsString = $.trim(inputParamsString);
 
                 if (inputParamsString.indexOf("-") == 0) {
@@ -109,7 +127,7 @@
                         _.each(params, function (p) {
                             var multiple = false;
                             //wierd ! Happen with <= IE8
-                            if(!p){
+                            if (!p) {
                                 return;
                             }
                             //multiple is parameters that kind be repeated in command like -D
@@ -136,6 +154,7 @@
 
                                         v = inputParamsString.match(/=['|"][\w|.|?|=|&|+| |:|/|\-|\\]*['|"]/);
                                         if (v == null) {
+                                            isOk = false;
                                             return false;
                                         }
                                         value = v[0];
@@ -143,10 +162,12 @@
                                             var comaOpen = value.charAt(1);
                                             var comaClose = value.charAt(value.length - 1);
                                             if (comaClose != comaOpen) {
+                                                isOk = false;
                                                 return false;
                                             }
                                         }
                                         else {
+                                            isOk = false;
                                             return false;
                                         }
                                     }
@@ -186,12 +207,28 @@
 
     /*Command specific*/
 
+
+
+
     var listExecute = function () {
         var ret = 0;
         var output = '';
+
+        //print aliasses
+        out.echo("Alias : ");
+        if (Aliasses.length === 0) {
+            out.echo("you have no alias");
+        }
+
+        for (var i = 0; i < Aliasses.length; i++) {
+            output += formatAlias(Aliasses[i].name) + " - " + Aliasses[i].command + "\n";
+        }
+        out.echo(output)
+        output = '';
+        out.echo("Commands : ");
         for (var object in Commands) {
             //noinspection JSUnfilteredForInLoop,JSUnresolvedVariable
-            output += object + Commands[object].doc + "\n";
+            output += formatCommand(object) + Commands[object].doc + "\n";
         }
 
         out.echo(output);
@@ -207,7 +244,7 @@
         var command = Commands[commandName];
         if (command) {
             //noinspection JSUnresolvedVariable
-            output += commandName + ': ' + command.doc;
+            output += formatCommand(commandName) + ': ' + command.doc;
             output += '\n\tParameters:\nOption (* = required)\t\t\tDescription\n---------------------\t\t-----------------\n';
             if (!command.params) {
                 output += 'No parameter';
@@ -219,7 +256,7 @@
                         output += '* ';
                     }
                     //noinspection JSUnresolvedVariable
-                    output += param.name + ' ' + (param.docValue ? param.docValue : '') + '\t' + param.doc;
+                    output += formatParam(param.name) + ' ' + (param.docValue ? param.docValue : '') + '\t' + param.doc;
                     output += '\n';
                 });
             }
@@ -237,6 +274,76 @@
     var helpExecute = function (params) {
         helpLogic(params, true);
     };
+
+    var aliasExecute = function (params) {
+        var name = params["-n"];
+        var remove = params["-d"] == "";
+
+        for (var object in Commands) {
+            if (name == object) {
+                out.error("Unable to create an alias with this name. " + name + " is taken.");
+                out.resume();
+                return;
+            }
+        }
+        if (remove) {
+            var alias = _.find(Aliasses, function (alias) {
+                return alias.name === name;
+            });
+
+            if (!alias) {
+                out.error("Alias named " + name + " does not exist");
+                out.resume();
+                return;
+            } else {
+                aliasController.removeAlias(name, function (result) {
+                    var code = result.responseObject();
+                    if (code == 0) {
+                        Aliasses.splice(Aliasses.indexOf(alias, 1));
+                        term.echo("alias successfully removed");
+                    } else {
+                        out.error("Can't delete this alias. An error occured");
+                    }
+                });
+            }
+        } else {
+            out.echo("Please enter the desired command for this alias and press enter. You can use the history to help you.");
+            localStorage['clic-task_0_alias_commands'] = localStorage['clic-task_0_commands'];
+            out.push(function (c, term) {
+                var cmd;
+                var cmd = CommandHandler.validateCommand(c);
+                if(c === 'exit'){
+                    term.pop();
+                }
+                if (cmd) {
+
+                    currentCmdParams = {};
+                    var paramsOk = CommandHandler.parseParams(cmd, c);
+                    if (paramsOk) {
+                        aliasController.addAlias(name, c, function (result) {
+                            var code = result.responseObject();
+                            if (code == 0) {
+                                Aliasses.push({name:name,command:c});
+                                term.echo("alias successfully added");
+                            } else {
+                                term.error("Unable to add this alias. An error occured");
+                            }
+                            term.pop();
+                        });
+                    }
+                    else {
+                        term.error('Bad Usage ! ');
+                        helpLogic({"-command": cmd.name}, false);
+                        term.error("Type 'exit' to cancel");
+                    }
+                }
+
+            }, { name: 'alias',
+                prompt: '>'});
+
+        }
+    }
+
     var backExecute = function (params) {
         out.pause();
         var timeout, stop = false;
@@ -288,12 +395,9 @@
                 managePulling(result, getLogs);
             } else {
                 out.error(result);
+                $(document).trigger("clicFinished", r.responseObject());
+                out.resume();
                 //noinspection JSUnresolvedVariable,JSUnresolvedFunction
-                cmdController.getExitCode(timestamp, function (r) {
-                    //noinspection JSUnresolvedFunction
-                    $(document).trigger("clicFinished", r.responseObject());
-                    out.resume();
-                });
             }
         });
         return ret;
@@ -306,10 +410,17 @@
         //noinspection JSUnresolvedFunction
         var commands = r.responseObject().history;
         localStorage['clic-task_0_commands'] = $.json_stringify(commands);
-
+        ;
 
         $('#terminal').terminal(function (c, term) {
             out = term;
+            var alias = _.find(Aliasses,function(a){
+                return a.name === c;
+            });
+            if(alias){
+                term.insert(alias.command);
+                return;
+            }
             var cmd = CommandHandler.validateCommand(c);
             if (cmd) {
 
@@ -339,12 +450,27 @@
         if (ret === 0) {
             out.echo("Execution: OK");
         }
-        else if(ret === 1){
+        else if (ret === 1) {
             out.error("Execution: KO");
-        }else{
+        } else {
             out.error("An error occurred. Unable to know the exit code");
         }
     });
+
+    var format = function (name, color) {
+        return "[[ub;" + color + ";black]" + name + "]";
+    }
+
+    var formatAlias = function(name){
+        return format(name, "#07C7ED");
+    }
+    var formatCommand = function(name){
+        return format(name,"#00FF85");
+    }
+    var formatParam = function(name){
+        return format(name,"#FF7000");
+    }
+
 
 })
     (jQuery);

@@ -1,7 +1,10 @@
 package jenkins.plugins.clic.commands;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.XppDriver;
 import hudson.XmlFile;
+import hudson.util.XStream2;
+import jenkins.plugins.clic.controller.pojo.AliasList;
 import jenkins.plugins.clic.controller.pojo.CommandResult;
 import jenkins.plugins.clic.tools.Tool;
 
@@ -125,9 +128,9 @@ public class Command {
 
     private void loadResult() throws IOException{
         if(Files.exists(pathResult)){
-            XStream xs = new XStream();
-            XmlFile xml = new XmlFile(xs,pathResult.toFile());
-            CommandResult result = (CommandResult) xml.read();
+            XStream xs = new XStream(null,new XppDriver(),CommandResult.class.getClassLoader());
+            InputStream in = Files.newInputStream(pathResult,StandardOpenOption.READ);
+            CommandResult result = (CommandResult) xs.fromXML(in);
             this.exitCode = result.getExitCode();
             this.command = result.getCommand();
         }

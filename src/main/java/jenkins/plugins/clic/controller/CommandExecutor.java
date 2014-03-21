@@ -50,7 +50,7 @@ public class CommandExecutor extends Thread {
             e.printStackTrace();
         } catch (Exception e) {
             //todo : clic-utils should throws an exception when parsing fails
-            //somotimes throw here : OptionArgumentConversionException
+            //somotimes throw here : OptionArgumentConversionException,MissingRequiredOptionException...
             iOH.consumeLine("ERROR during parsing of the command. Please ensure that all parameters have the correct syntax.");
             command.setExitCode(1);
             e.printStackTrace();
@@ -58,6 +58,7 @@ public class CommandExecutor extends Thread {
             command.finish();
             FileOutputHandler fOH = (FileOutputHandler) iOH;
             fOH.closeBuffer();
+            Thread.currentThread().interrupt();
         }
     }
 }

@@ -1,4 +1,26 @@
 {
+    "alias":{
+        "doc": " - Create or delete an alias",
+        "template": "",
+        "params": [
+            {
+                "name": "-d",
+                "doc": "delete the specified alias",
+                "mandatory":false,
+                "value": false,
+                "multiple":false
+            },
+            {
+                "name": "-n",
+                "doc": "the name of the alias",
+                "mandatory": true,
+                "value": true,
+                "docValue":"<AliasName: -n myAliasName",
+                "multiple":false
+            }
+        ]
+
+    },
     "list": {
         "doc": " - Displays the list of the available commands",
         "template": "list"

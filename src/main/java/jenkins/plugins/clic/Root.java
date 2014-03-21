@@ -4,6 +4,7 @@ import hudson.Extension;
 import hudson.model.Job;
 import hudson.model.RootAction;
 import hudson.security.Permission;
+import jenkins.plugins.clic.controller.AliasHandler;
 import jenkins.plugins.clic.controller.CommandHandler;
 import jenkins.plugins.clic.tools.Tool;
 
@@ -13,6 +14,7 @@ import jenkins.plugins.clic.tools.Tool;
 public class Root implements RootAction {
 
     private static CommandHandler ch;
+    private static AliasHandler al;
 
 
     public String getIconFileName() {
@@ -42,6 +44,14 @@ public class Root implements RootAction {
             ch = new CommandHandler();
         }
         return ch;
+    }
+
+    @SuppressWarnings("unused")
+    public AliasHandler getAliasHandler(){
+        if(al == null){
+            al = new AliasHandler();
+        }
+        return al;
     }
 
     @SuppressWarnings("unsued")
