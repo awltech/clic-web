@@ -1,8 +1,32 @@
-clic-web
-========
+# CliC Jenkins Plugin
 
-Jenkins plugin to use Clic commands from a web gui
+This version of [CliC] allows to execute [CliC] commands from Jenkins.
 
-# Requirement
+## Requirement
 
-The following property must be set :  ${maven.home}
+ ${maven.home} must be set on your Jenkins Server.
+
+ ## Features
+
+ - clic:mvn commands
+ - alias
+
+## Installation
+
+- Compile
+
+skip the tests for now (Those tests are injected by Jenkins. Not sure what they do)
+
+  mvn clean install -DskipTests
+
+- In your Browser,  go to {Jenkins URL}/pluginManager/advanced
+- Submit your hpi file you have just compiled. ( target/clic.hpi)
+- That's it.
+
+
+## Security
+
+In Root.java  the getRequiredPermission()  specify which Permission define who is allowed to access the CliC interface.
+
+
+[CliC]:  http://awltech.github.io/clic/
